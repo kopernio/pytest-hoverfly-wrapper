@@ -1,0 +1,53 @@
+{
+  "journal": [
+    {
+      "request": {
+        "path": "/signup",
+        "method": "GET",
+        "destination": "sensitive.host",
+        "scheme": "http",
+        "query": "",
+        "body": "",
+        "headers": {
+          "Accept": [
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"
+          ],
+          "Accept-Encoding": [
+            "gzip, deflate"
+          ],
+          "Accept-Language": [
+            "en-GB,en-US;q=0.9,en;q=0.8"
+          ],
+          "Proxy-Connection": [
+            "keep-alive"
+          ],
+          "Upgrade-Insecure-Requests": [
+            "1"
+          ],
+          "User-Agent": [
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36"
+          ]
+        }
+      },
+      "response": {
+        "status": 302,
+        "body": "foobar",
+        "encodedBody": false,
+        "headers": {
+          "Hoverfly-Cache-Served": [
+            "gzip, deflate, br"
+          ],
+          "foobar": [
+            "gzip, deflate, br"
+          ]
+        }
+      },
+      "mode": "spy",
+      "timeStarted": "2020-04-05T18:27:15.444+01:00",
+      "latency": 91.423878
+    }
+  ],
+  "offset": 0,
+  "limit": 10,
+  "total": 148
+}

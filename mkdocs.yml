@@ -1,0 +1,10 @@
+site_name: pytest-hoverfly-wrapper
+site_description: TBD
+site_author: Veli Akiner
+
+theme: readthedocs
+
+repo_url: https://github.com/veliakiner/pytest-hoverfly-wrapper
+
+pages:
+- Home: index.md
