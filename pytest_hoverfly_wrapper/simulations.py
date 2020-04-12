@@ -41,7 +41,7 @@ class GeneratedSimulation:
         :dict capture_config: overrides the existing Hoverfly simulation capture settings
         :tuple static_files: static file simulations that get used in combination with recorded simulations. These aren't used when a simulation is being recorded.
         """
-        self.file = file or f"temp_{time.time()}.json"
+        self.file = file or "temp_{}.json".format(time.time())
         self.max_age = max_age
         self.capture_config = capture_config
         self.static_files = list(static_files) + self.default_static_files

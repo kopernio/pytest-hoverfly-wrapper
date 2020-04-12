@@ -40,18 +40,18 @@ def test_generate_logs(mocker, tmpdir):
     mock_request.node.mode = "simulate"
     mock_journal_api = mocker.MagicMock()
     mock_journal_api.get.return_value = json.load(open("tests/input.json"))
-    log_file = os.path.join(tmpdir, "network.json")
+    log_file = os.path.join(tmpdir.strpath, "network.json")
     # golden path
-    generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir)
+    generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir.strpath)
     assert os.path.isfile(log_file)
     # exception raised if sensitive host isn't cached
     del mock_journal_api.get.return_value["journal"][0]["response"]["headers"]["Hoverfly-Cache-Served"]
     with pytest.raises(AssertionError):
-        generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir)
+        generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir.strpath)
 
     # useful message dumped if hoverfly crashes during log retrieval
     mock_journal_api.get.side_effect = requests.exceptions.ConnectionError
-    generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir)
+    generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir.strpath)
     assert json.load(open(log_file)) == {"msg": "Hoverfly crashed while retrieving logs"}
 
 
