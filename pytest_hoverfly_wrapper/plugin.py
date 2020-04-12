@@ -46,6 +46,10 @@ TEST_DATA_DIR = os.path.join(os.getcwd(), "test_data")
 
 @pytest.fixture
 def test_data_dir():
+    return TEST_DATA_DIR
+
+@pytest.fixture
+def _test_data_dir(test_data_dir):
     for d in (TEST_DATA_DIR, os.path.join(TEST_DATA_DIR, "static"), os.path.join(TEST_DATA_DIR, "generated")):
         if not os.path.exists(d):
             os.mkdir(d)
@@ -145,7 +149,7 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture
-def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, test_data_dir):
+def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, _test_data_dir):
     # Start Hoverfly
     logger.info("Setting up hoverfly")
     port, admin_port = hf_ports
@@ -176,7 +180,7 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"})
 
     try:
-        yield from setup_hoverfly_mode(request, port, admin_port, test_data_dir)
+        yield from setup_hoverfly_mode(request, port, admin_port, _test_data_dir)
         generate_logs(request, JournalAPI(admin_port=hf_ports[1]), test_log_directory)
     finally:
         logger.warning("Killing hoverfly")
