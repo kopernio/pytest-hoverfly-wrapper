@@ -2,9 +2,6 @@ import os
 import time
 
 
-TEST_DATA_DIR = os.path.join(os.getcwd(), "test_data")
-if not os.path.exists(TEST_DATA_DIR):
-    os.mkdir(TEST_DATA_DIR)
 
 
 class StaticSimulation:
@@ -21,13 +18,7 @@ class StaticSimulation:
         self.files = files if files else []
         self.block_domains = block_domains
 
-        self.directory = os.path.join(TEST_DATA_DIR, self.file_type)
-        if not os.path.exists(self.directory):
-            os.mkdir(self.directory)
-        self.file_paths = [os.path.join(self.directory, file) for file in self.files]
-        for file in self.file_paths:
-            if not os.path.isfile(file):
-                raise RuntimeError("File not found: {}".format(file))
+        self.file_paths = [os.path.join(self.file_type, file) for file in self.files]
 
 
 class GeneratedSimulation:
@@ -41,11 +32,8 @@ class GeneratedSimulation:
         :dict capture_config: overrides the existing Hoverfly simulation capture settings
         :tuple static_files: static file simulations that get used in combination with recorded simulations. These aren't used when a simulation is being recorded.
         """
-        self.file = file or "temp_{}.json".format(time.time())
+        self.file = os.path.join(self.file_type, file or "temp_{}.json".format(time.time()))
         self.max_age = max_age
         self.capture_config = capture_config
         self.static_files = list(static_files) + self.default_static_files
-        self.static_files = [os.path.join(TEST_DATA_DIR, "static", file) for file in self.static_files]
-        self.directory = os.path.join(TEST_DATA_DIR, self.file_type)
-        if not os.path.exists(self.directory):
-            os.mkdir(self.directory)
+        self.static_files = [os.path.join("static", file) for file in self.static_files]

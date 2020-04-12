@@ -42,6 +42,15 @@ def sensitive_hosts(request):
     # We verify that requests to these hosts in tests are cached in simulations.
     request.node.sensitive = ()
 
+TEST_DATA_DIR = os.path.join(os.getcwd(), "test_data")
+
+@pytest.fixture
+def test_data_dir():
+    for d in (TEST_DATA_DIR, os.path.join(TEST_DATA_DIR, "static"), os.path.join(TEST_DATA_DIR, "generated")):
+        if not os.path.exists(d):
+            os.mkdir(d)
+    return TEST_DATA_DIR
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -136,7 +145,7 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture
-def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts):
+def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, test_data_dir):
     # Start Hoverfly
     logger.info("Setting up hoverfly")
     port, admin_port = hf_ports
@@ -167,7 +176,7 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"})
 
     try:
-        yield from setup_hoverfly_mode(request, port, admin_port)
+        yield from setup_hoverfly_mode(request, port, admin_port, test_data_dir)
         generate_logs(request, JournalAPI(admin_port=hf_ports[1]), test_log_directory)
     finally:
         logger.warning("Killing hoverfly")
@@ -200,7 +209,7 @@ def combine_simulations(simulations, domains_to_block, worker):
     return file_name
 
 
-def setup_hoverfly_mode(request, port, admin_port):
+def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     is_static = isinstance(sim_config, StaticSimulation)
@@ -208,12 +217,12 @@ def setup_hoverfly_mode(request, port, admin_port):
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
-            file = combine_simulations(sim_config.file_paths, sim_config.block_domains, admin_port)
+            file = combine_simulations([os.path.join(data_dir, p) for p in sim_config.file_paths], sim_config.block_domains, admin_port)
         else:
             file = None
     else:
         # TODO: make generated sims parameter-specific for parametrised tests
-        file = os.path.join(sim_config.directory, sim_config.file)
+        file = os.path.join(data_dir, sim_config.file)
 
     if is_static:
         request.node.mode = "simulate"
@@ -233,7 +242,7 @@ def setup_hoverfly_mode(request, port, admin_port):
             logger.info("Static simulations used in test: {}".format(sim))
         if sim_config.static_files:
             # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            file = combine_simulations((*sim_config.static_files, file), (), admin_port)
+            file = combine_simulations([os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port)
         yield from simulate(file, port, admin_port, request.node, sim_config.static_files)
 
 
