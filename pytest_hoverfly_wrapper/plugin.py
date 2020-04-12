@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-
-from .simulations import GeneratedSimulation, StaticSimulation, TEST_DATA_DIR
+from .simulations import StaticSimulation
 
 import glob
 import json
