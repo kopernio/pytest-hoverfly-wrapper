@@ -22,6 +22,8 @@ class StaticSimulation:
         self.block_domains = block_domains
 
         self.directory = os.path.join(TEST_DATA_DIR, self.file_type)
+        if not os.path.exists(self.directory):
+            os.mkdir(self.directory)
         self.file_paths = [os.path.join(self.directory, file) for file in self.files]
         for file in self.file_paths:
             if not os.path.isfile(file):
@@ -45,3 +47,5 @@ class GeneratedSimulation:
         self.static_files = list(static_files) + self.default_static_files
         self.static_files = [os.path.join(TEST_DATA_DIR, "static", file) for file in self.static_files]
         self.directory = os.path.join(TEST_DATA_DIR, self.file_type)
+        if not os.path.exists(self.directory):
+            os.mkdir(self.directory)
