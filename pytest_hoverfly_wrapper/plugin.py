@@ -50,10 +50,10 @@ def test_data_dir():
 
 @pytest.fixture
 def _test_data_dir(test_data_dir):
-    for d in (TEST_DATA_DIR, os.path.join(TEST_DATA_DIR, "static"), os.path.join(TEST_DATA_DIR, "generated")):
+    for d in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
         if not os.path.exists(d):
             os.mkdir(d)
-    return TEST_DATA_DIR
+    return test_data_dir
 
 
 def pytest_addoption(parser):
