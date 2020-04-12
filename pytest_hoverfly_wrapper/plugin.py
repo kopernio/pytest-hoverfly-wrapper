@@ -89,9 +89,10 @@ def pytest_configure(config):
 
 def simulate(file, hf_port, admin_port, node, sim_list=()):
     logger.info("Simulation exists and is up-to-date. Importing.")
-    with open(file) as f:
-        data = f.read().encode("utf-8")
-    requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data)
+    if file:
+        with open(file) as f:
+            data = f.read().encode("utf-8")
+        requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data)
     yield "simulate", hf_port, admin_port
 
     if hasattr(node, "dont_save_sim"):
@@ -206,7 +207,10 @@ def setup_hoverfly_mode(request, port, admin_port):
     if is_static:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
-        file = combine_simulations(sim_config.file_paths, sim_config.block_domains, admin_port)
+        if sim_config.file_paths:
+            file = combine_simulations(sim_config.file_paths, sim_config.block_domains, admin_port)
+        else:
+            file = None
     else:
         # TODO: make generated sims parameter-specific for parametrised tests
         file = os.path.join(sim_config.directory, sim_config.file)
