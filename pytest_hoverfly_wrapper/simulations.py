@@ -2,14 +2,12 @@ import os
 import time
 
 
-
-
 class StaticSimulation:
     # TODO: consider creating a common Simulation interface in the future, if these classes get big
     file_type = "static"
     max_age = None  # Static simulations have no expiry
 
-    def __init__(self, files: list=None, block_domains: list=()):
+    def __init__(self, files: list = None, block_domains: list = ()):
         """
         :list file: list of files that are used in the simulation
         :list block_domains: list of domains (or domain glob patterns) for which simulations will be generated to

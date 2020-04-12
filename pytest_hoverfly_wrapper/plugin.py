@@ -42,11 +42,14 @@ def sensitive_hosts(request):
     # We verify that requests to these hosts in tests are cached in simulations.
     request.node.sensitive = ()
 
+
 TEST_DATA_DIR = os.path.join(os.getcwd(), "test_data")
+
 
 @pytest.fixture
 def test_data_dir():
     return TEST_DATA_DIR
+
 
 @pytest.fixture
 def _test_data_dir(test_data_dir):
@@ -70,12 +73,14 @@ def pytest_addoption(parser):
         help="Re-records any tests whose generated simulations have expired. Don't use for actual testing.",
     )
 
+
 @pytest.fixture
 def test_log_directory():
     directory = os.path.join("hoverfly_logs")
     if not os.path.exists(directory):
         os.mkdir(directory)
     return directory
+
 
 def pytest_collection_modifyitems(session, config, items):
     if config.getoption("refreshexpired"):
@@ -87,6 +92,7 @@ def pytest_collection_modifyitems(session, config, items):
             for item in items
             if item.get_closest_marker("simulated") and item.get_closest_marker("simulated").args[0].max_age
         ]
+
 
 class DeferPlugin(object):
     """Simple plugin to defer pytest-xdist hook functions."""
@@ -221,7 +227,9 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
-            file = combine_simulations([os.path.join(data_dir, p) for p in sim_config.file_paths], sim_config.block_domains, admin_port)
+            file = combine_simulations(
+                [os.path.join(data_dir, p) for p in sim_config.file_paths], sim_config.block_domains, admin_port
+            )
         else:
             file = None
     else:
@@ -233,10 +241,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         for sim in sim_config.file_paths:
             logger.info("Static simulations used in test: {}".format(sim))
         yield from simulate(file, port, admin_port, request.node, sim_config.file_paths)
-    elif (
-        request.config.getoption("forcelive")
-        or no_valid_simulation_exists(request, file, sim_config.max_age)
-    ):
+    elif request.config.getoption("forcelive") or no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
     else:
@@ -246,7 +251,9 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
             logger.info("Static simulations used in test: {}".format(sim))
         if sim_config.static_files:
             # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            file = combine_simulations([os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port)
+            file = combine_simulations(
+                [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
+            )
         yield from simulate(file, port, admin_port, request.node, sim_config.static_files)
 
 

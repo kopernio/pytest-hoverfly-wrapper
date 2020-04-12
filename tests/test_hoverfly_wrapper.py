@@ -59,6 +59,7 @@ def test_no_simulation_marker(setup_hoverfly):
     # We should be able to setup Hoverfly without specifying a simulation
     pass
 
+
 # TODO: end-to-end tests covering:
 #  using static sims,
 #  recording and using sims,
