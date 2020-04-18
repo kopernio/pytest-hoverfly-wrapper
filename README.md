@@ -1,1 +1,110 @@
-TODO
+# Pytest Hoverfly Wrapper
+
+This `pytest` plugin allows easy integration of Hoverfly into your tests. Hoverfly is a proxy server that can intercept requests and return custom responses. More info on Hoverfly: https://hoverfly.io/
+
+## Installation
+
+Clone the repository and then install using `setup.py`:
+
+```sh
+python setup.py install
+```
+This will also automatically install the plugin's dependencies.
+
+Then go to https://hoverfly.io/#download, download the correct package for you operatin system, extract the `hoverfly` and 
+`hoverctl` files and ensure that these are in your PATH.  `
+
+## Usage example
+
+### Cache responses to external services
+
+Adding the `setup_hoverfly` fixture will stand up a Hoverfly server instance running on port 8500. You can then use this 
+as a proxy that saves responses to any requests make via the proxy. If the test passes, the saved responses will be dumped 
+to file, which will be used when the test runs again.
+
+```python
+# Enable the fixture explicitly in your tests or conftest.py (not required when using setuptools entry points)
+from pytest_hoverfly_wrapper import GeneratedSimulation
+import requests
+import pytest
+pytest_plugins = ['pytest_hoverfly_wrapper'] # not necessary if the plugin is installed via 'setup.py`
+@pytest.mark.simulated(GeneratedSimulation(file="some_file.json"))
+def test_something(setup_hoverfly):
+    proxy_port = setup_hoverfly[1]
+    proxies = {
+     "http": "http://localhost:{}".format(proxy_port),
+     "https": "http://localhost:{}".format(proxy_port),
+    }
+    requests.get("https://urlwedontwanttospam.com", proxies=proxies)
+    
+```
+After running the test for the first time, you will find a file located at `./test_data/generated/some_file.json`, 
+containing all the requests made using the proxy, as well as the responses to them. Upon running the test the second time, 
+the test will load the file and attempt to match requests to the list in the file. If a successful match is found, the matching 
+response will be served. If not, the request will be made to its original target and the target's response will be served instead.
+
+### Completely fake responses
+
+You can also specify your own custom responses.
+
+```python
+# Enable the fixture explicitly in your tests or conftest.py (not required when using setuptools entry points)
+from pytest_hoverfly_wrapper import StaticSimulation
+import requests
+import pytest
+pytest_plugins = ['pytest_hoverfly_wrapper']
+@pytest.mark.simulated(StaticSimulation(files=["google_returns_404.json"]))
+def test_something(setup_hoverfly):
+    proxy_port = setup_hoverfly[1]
+    proxies = {
+     "http": "http://localhost:{}".format(proxy_port),
+     "https": "http://localhost:{}".format(proxy_port),
+    }
+    r = requests.get("http://google.com", proxies=proxies)
+    assert r.status_code == 404
+```
+Full code is in `sample/`
+
+### Hoverfly crashes
+Occasionally, the Hoverfly proxy might crash mid-test. If this happens, the test will raise `HoverflyCrashException`, 
+which gives you clarity of why the test failed and can be caught in your testing framework as part of some test retrying 
+logic.
+
+### Logging
+`pytest-hoverfly-wrapper` uses the in-built `logging` module for logs. To import the logger:
+```python
+import logging
+from pytest_hoverfly_wrapper import LOGGER_NAME
+hoverfly_logger = logging.getLogger(LOGGER_NAME)
+```
+Then customise the logger as necessary.
+
+
+### Debugging
+In all scenarios, when a response is sent by Hoverfly rather than a remote server, that response will have the `Hoverfly-Cache-Served` 
+header set. This differentiates the two types of response, and helps debug situations where you think a response is being served by Hoverfly 
+but isn't, e.g. when Hoverfly fails to match the request even though you're expecting it to.
+
+At the end of the test, the plugin will create `network.json` containing the list of all requests made (and responses received) 
+during the test, including parameters and headers.
+
+## Release History
+
+* 0.1.0
+    * Initial release
+
+## Meta
+
+For all queries contact Veli Akiner: veli@kopernio.com
+
+Distributed under a modified MIT license. See ``LICENSE`` for more information.
+
+[https://bitbucket.org/kopernio/pytest-hoverfly-wrapper](https://bitbucket.org/kopernio/pytest-hoverfly-wrapper)
+
+## Contributing
+
+1. Fork it (<https://github.com/yourname/yourproject/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
