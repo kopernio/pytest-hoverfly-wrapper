@@ -19,7 +19,7 @@ setup(
     maintainer="Veli Akiner",
     maintainer_email="veli@kopernio.com",
     license="MIT",
-    url="https://github.com/veliakiner/pytest-hoverfly-wrapper",
+    url="https://github.com/kopernio/pytest-hoverfly-wrapper",
     description="TBD",
     long_description=read("README.md"),
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
