@@ -13,9 +13,9 @@ This will also automatically install the plugin's dependencies.
 
 Once installation has finished:
 
-  1. go to https://hoverfly.io/#download
-  2. download the correct package for you operating system
-  3. extract the `hoverfly` and `hoverctl` files and ensure that these are in your PATH.  `
+  1. Go to https://hoverfly.io/#download
+  2. Download the correct package for you operating system
+  3. Extract the `hoverfly` and `hoverctl` files and ensure that these are in your PATH.
 
 ## Usage example
 
