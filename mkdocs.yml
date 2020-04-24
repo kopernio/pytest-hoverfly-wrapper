@@ -4,7 +4,7 @@ site_author: Veli Akiner
 
 theme: readthedocs
 
-repo_url: https://github.com/veliakiner/pytest-hoverfly-wrapper
+repo_url: https://github.com/kopernio/pytest-hoverfly-wrapper
 
 pages:
 - Home: index.md
