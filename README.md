@@ -88,7 +88,7 @@ In all scenarios, when a response is sent by Hoverfly rather than a remote serve
 header set. This differentiates the two types of response, and helps debug situations where you think a response is being served by Hoverfly 
 but isn't, e.g. when Hoverfly fails to match the request even though you're expecting it to.
 
-At the end of the test, the plugin will create `network.json` containing the list of all requests made (and responses received) 
+At the end of the test, the plugin will create a `network.json` file containing the list of all requests made (and responses received) 
 during the test, including parameters and headers.
 
 ## Release History
