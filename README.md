@@ -11,7 +11,7 @@ python setup.py install
 ```
 This will also automatically install the plugin's dependencies.
 
-Then go to https://hoverfly.io/#download, download the correct package for you operatin system, extract the `hoverfly` and 
+Then go to https://hoverfly.io/#download, download the correct package for you operating system, extract the `hoverfly` and 
 `hoverctl` files and ensure that these are in your PATH.  `
 
 ## Usage example
