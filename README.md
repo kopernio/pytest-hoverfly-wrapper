@@ -102,7 +102,7 @@ For all queries contact Veli Akiner: veli@kopernio.com
 
 Distributed under a modified MIT license. See ``LICENSE`` for more information.
 
-[https://bitbucket.org/kopernio/pytest-hoverfly-wrapper](https://bitbucket.org/kopernio/pytest-hoverfly-wrapper)
+[https://github.com/kopernio/pytest-hoverfly-wrapper](https://github.com/kopernio/pytest-hoverfly-wrapper)
 
 ## Contributing
 
