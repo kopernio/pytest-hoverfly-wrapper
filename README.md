@@ -22,7 +22,7 @@ Once installation has finished:
 ### Cache responses to external services
 
 Adding the `setup_hoverfly` fixture will stand up a Hoverfly server instance running on port 8500. You can then use this 
-as a proxy that saves responses to any requests make via the proxy. If the test passes, the saved responses will be dumped 
+as a proxy that saves the responses to any requests make via the proxy. If the test passes, the saved responses will be dumped 
 to file, which will be used when the test runs again.
 
 ```python
