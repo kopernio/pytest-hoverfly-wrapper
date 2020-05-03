@@ -22,6 +22,7 @@ setup(
     url="https://github.com/kopernio/pytest-hoverfly-wrapper",
     description="TBD",
     long_description=read("README.md"),
+    long_description_content_type="text/markdown",
     python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
     install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling"],
     tests_require=["pytest-mock",],
