@@ -34,6 +34,32 @@ def test_raise_hoverflycrashedexc(testdir):
     )
 
 
+def test_custom_test_data_dir(testdir):
+    """Test creating a custom directory."""
+
+    # create a temporary pytest test module
+    testdir.makepyfile(
+        """
+        from pytest_hoverfly_wrapper.simulations import GeneratedSimulation
+        import pytest
+        import requests
+        
+        @pytest.fixture
+        def test_data_dir():
+            return "./this/dir/structure/doesnt/exist"
+
+        @pytest.mark.simulated(GeneratedSimulation())
+        def test_sth(setup_hoverfly):
+            pass
+    """
+    )
+
+    # run pytest with the following cmd args
+    result = testdir.runpytest()
+
+    assert result.ret == 0
+
+
 def test_generate_logs(mocker, tmpdir):
     mock_request = mocker.MagicMock()
     mock_request.node.sensitive = ["sensitive.host"]
