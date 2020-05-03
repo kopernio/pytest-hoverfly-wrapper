@@ -99,6 +99,8 @@ during the test, including parameters and headers.
 
 * 0.1.0
     * Initial release
+* 0.1.1
+    * Updates the description in the PyPi page.
 
 ## Meta
 
