@@ -9,7 +9,11 @@ Clone the repository and then install using `setup.py`:
 ```sh
 python setup.py install
 ```
-This will also automatically install the plugin's dependencies.
+This will also automatically install the plugin's dependencies. Alternatively, install via `pip`:
+
+
+    pip install python-hoverfly-wrapper
+
 
 Once installation has finished:
 
