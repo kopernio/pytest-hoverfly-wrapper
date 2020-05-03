@@ -101,6 +101,8 @@ during the test, including parameters and headers.
     * Initial release
 * 0.1.1
     * Updates the description in the PyPi page.
+* 0.1.2
+    * Create test data directory if it doesn't exist
 
 ## Meta
 

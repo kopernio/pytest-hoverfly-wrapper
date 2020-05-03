@@ -8,6 +8,7 @@ import logging
 import os
 import subprocess
 from datetime import datetime, timezone
+from pathlib import Path
 
 import polling
 import pytest
@@ -54,8 +55,7 @@ def test_data_dir():
 @pytest.fixture
 def _test_data_dir(test_data_dir):
     for d in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
-        if not os.path.exists(d):
-            os.mkdir(d)
+        Path(d).mkdir(parents=True, exist_ok=True)
     return test_data_dir
 
 
@@ -93,6 +93,17 @@ def pytest_collection_modifyitems(session, config, items):
             if item.get_closest_marker("simulated") and item.get_closest_marker("simulated").args[0].max_age
         ]
 
+
+class DeferPlugin(object):
+    """Simple plugin to defer pytest-xdist hook functions."""
+
+    def pytest_configure(self, config):
+        print("Configuring!!!!")
+
+
+def pytest_configure(config):
+    if 0:
+        config.pluginmanager.register(DeferPlugin())
 
 
 def simulate(file, hf_port, admin_port, node, sim_list=()):
