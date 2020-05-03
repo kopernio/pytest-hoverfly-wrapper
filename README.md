@@ -103,6 +103,8 @@ during the test, including parameters and headers.
     * Updates the description in the PyPi page.
 * 0.1.2
     * Create test data directory if it doesn't exist
+* 0.1.3
+    * Put the bugfix in 0.1.2 in its correct place and remove extraneous plugin.py code
 
 ## Meta
 
