@@ -94,17 +94,6 @@ def pytest_collection_modifyitems(session, config, items):
         ]
 
 
-class DeferPlugin(object):
-    """Simple plugin to defer pytest-xdist hook functions."""
-
-    def pytest_configure(self, config):
-        print("Configuring!!!!")
-
-
-def pytest_configure(config):
-    if 0:
-        config.pluginmanager.register(DeferPlugin())
-
 
 def simulate(file, hf_port, admin_port, node, sim_list=()):
     logger.info("Simulation exists and is up-to-date. Importing.")
