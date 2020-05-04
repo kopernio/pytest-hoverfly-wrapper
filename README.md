@@ -34,7 +34,7 @@ to file, which will be used when the test runs again.
 from pytest_hoverfly_wrapper import GeneratedSimulation
 import requests
 import pytest
-pytest_plugins = ['pytest_hoverfly_wrapper'] # not necessary if the plugin is installed via 'setup.py`
+
 @pytest.mark.simulated(GeneratedSimulation(file="some_file.json"))
 def test_something(setup_hoverfly):
     proxy_port = setup_hoverfly[1]
@@ -59,7 +59,7 @@ You can also specify your own custom responses.
 from pytest_hoverfly_wrapper import StaticSimulation
 import requests
 import pytest
-pytest_plugins = ['pytest_hoverfly_wrapper']
+
 @pytest.mark.simulated(StaticSimulation(files=["google_returns_404.json"]))
 def test_something(setup_hoverfly):
     proxy_port = setup_hoverfly[1]
