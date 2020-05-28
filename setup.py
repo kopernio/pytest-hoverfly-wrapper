@@ -27,6 +27,7 @@ setup(
     install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling"],
     tests_require=["pytest-mock",],
     packages=["pytest_hoverfly_wrapper"],
+    include_package_data=True,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Framework :: Pytest",

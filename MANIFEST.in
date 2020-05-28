@@ -1,5 +1,5 @@
 include LICENSE
 include README.rst
-
+include pytest_hoverfly_wrapper/block_domain_template.json
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
