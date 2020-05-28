@@ -1,0 +1,71 @@
+{
+    "data": {
+        "pairs": [
+            {
+                "request": {
+                    "destination": [
+                        {
+                            "matcher": "glob",
+                            "value": "<DOMAIN>"
+                        }
+                    ]
+                },
+                "response": {
+                    "encodedBody": true,
+                    "status": 404,
+                    "body": "",
+                    "templated": false,
+                    "headers": {
+                        "Access-Control-Allow-Origin": [
+                            "*"
+                        ],
+                        "Server": [
+                            "gunicorn/19.4.5"
+                        ],
+                        "Date": [
+                            "Tue, 17 Jul 2018 10:00:53 GMT"
+                        ],
+                        "Via": [
+                            "1.1 vegur"
+                        ],
+                        "Hoverfly": [
+                            "Was-Here"
+                        ],
+                        "Content-Type": [
+                            "application/json"
+                        ],
+                        "Content-Length": [
+                            "0"
+                        ],
+                        "Content-Encoding": [
+                            "gzip"
+                        ],
+                        "Connection": [
+                            "keep-alive"
+                        ],
+                        "Access-Control-Allow-Methods": [
+                            "POST, GET, OPTIONS, PUT, DELETE, PATCH"
+                        ],
+                        "Vary": [
+                            "Accept-Encoding"
+                        ],
+                        "Access-Control-Allow-Headers": [
+                            "origin, content-type, accept, x-requested-with"
+                        ],
+                        "Hoverfly-Cache-Served": [
+                            "True"
+                        ]
+                    }
+                }
+            }
+        ],
+        "globalActions": {
+            "delays": []
+        }
+    },
+    "meta": {
+        "hoverflyVersion": "v0.17.0",
+        "timeExported": "2018-07-17T11:01:08+01:00",
+        "schemaVersion": "v5"
+    }
+}

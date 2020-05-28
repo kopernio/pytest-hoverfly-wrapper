@@ -195,7 +195,7 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
 
 
 def template_block_domain_json(domain):
-    with open(os.path.join("test_data", "block_domain_template.json")) as f:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")) as f:
         sim = f.read()
         sim = sim.replace("<DOMAIN>", domain)
 
