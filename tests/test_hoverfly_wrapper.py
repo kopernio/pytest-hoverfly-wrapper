@@ -4,7 +4,7 @@ import os
 import pytest
 import requests
 
-from pytest_hoverfly_wrapper.plugin import generate_logs
+from pytest_hoverfly_wrapper.plugin import generate_logs, template_block_domain_json
 
 
 def test_raise_hoverflycrashedexc(testdir):
@@ -48,7 +48,7 @@ def test_custom_test_data_dir(testdir):
         def test_data_dir():
             return "./this/dir/structure/doesnt/exist"
 
-        @pytest.mark.simulated(GeneratedSimulation())
+        @pytest.mark.simulated(GeneratedSimulation(), block_domains=["reddit.com"])
         def test_sth(setup_hoverfly):
             pass
     """
@@ -84,6 +84,10 @@ def test_generate_logs(mocker, tmpdir):
 def test_no_simulation_marker(setup_hoverfly):
     # We should be able to setup Hoverfly without specifying a simulation
     pass
+
+
+def test_template_block_domain_json():
+    template_block_domain_json("reddit.com")
 
 
 # TODO: end-to-end tests covering:
