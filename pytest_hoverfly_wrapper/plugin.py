@@ -136,11 +136,12 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     data = json.loads(sim)
     data["meta"]["version"] = HOVERFLY_SIM_VER
     new_pairs = []
+    hosts_to_ignore = [node.ignore] if isinstance(node.ignore, str) else node.ignore
     for pair in data["data"]["pairs"]:
         # Allow us to differentiate cached responses from proxied ones.
         pair["response"]["headers"]["Hoverfly-Cache-Served"] = ["True"]
         # `value` is a URL
-        if not any(host in pair["request"]["destination"][0]["value"] for host in node.ignore):
+        if not any(host in pair["request"]["destination"][0]["value"] for host in hosts_to_ignore):
             new_pairs.append(pair)
     data["data"]["pairs"] = new_pairs
     with open(file, "w") as f:
