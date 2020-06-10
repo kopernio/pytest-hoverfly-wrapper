@@ -72,6 +72,12 @@ def pytest_addoption(parser):
         default=False,
         help="Re-records any tests whose generated simulations have expired. Don't use for actual testing.",
     )
+    parser.addoption(
+        "--hoverfly-opts",
+        action="store",
+        default="",
+        help="Additional arguments to pass to the Hoverfly executable"
+    )
 
 
 @pytest.fixture
@@ -166,7 +172,8 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     f = open(os.path.join(test_log_directory, "hoverfly.log"), "w")
 
     logger.info("Starting hoverfly")
-    hoverfly_cmd = ["hoverfly", "-pp", str(port), "-ap", str(admin_port)]
+    add_opts = request.config.getoption("hoverfly_opts")
+    hoverfly_cmd = ["hoverfly", "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
     exc = None
     for _ in range(3):
         hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
