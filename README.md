@@ -107,6 +107,8 @@ during the test, including parameters and headers.
     * Put the bugfix in 0.1.2 in its correct place and remove extraneous plugin.py code
 * 0.1.4
     * Fixes broken domain blocking functionality
+* 0.2.0
+    * Bug fixes and command line option to pass custom parameters to Hoverfly executable command
 
 ## Meta
 
@@ -123,3 +125,4 @@ Distributed under a modified MIT license. See ``LICENSE`` for more information.
 3. Commit your changes (`git commit -am 'Add some fooBar'`)
 4. Push to the branch (`git push origin feature/fooBar`)
 5. Create a new Pull Request
+
