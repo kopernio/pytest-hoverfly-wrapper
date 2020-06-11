@@ -160,6 +160,14 @@ def pytest_runtest_makereport(item, call):
     if call.when == "call" and call.excinfo:
         item.dont_save_sim = True
 
+BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")
+def template_block_domain_json(domain):
+    with open(BLOCK_DOMAIN_TEMPLATE) as f:
+        sim = f.read()
+        sim = sim.replace("<DOMAIN>", domain)
+
+    return json.loads(sim)
+
 
 @pytest.fixture
 def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, _test_data_dir):
@@ -202,14 +210,6 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
         logger.warning("Killed hoverfly")
 
 
-def template_block_domain_json(domain):
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")) as f:
-        sim = f.read()
-        sim = sim.replace("<DOMAIN>", domain)
-
-    return json.loads(sim)
-
-
 def combine_simulations(simulations, domains_to_block, worker):
     with open(simulations[0]) as f:
         combined_sim = json.loads(f.read())
@@ -235,11 +235,12 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
-            file = combine_simulations(
-                [os.path.join(data_dir, p) for p in sim_config.file_paths], sim_config.block_domains, admin_port
-            )
+            single_sim_files = [os.path.join(data_dir, p) for p in sim_config.file_paths]
         else:
-            file = None
+            single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
+        combine_simulations(
+            single_sim_files, sim_config.block_domains, admin_port
+        )
     else:
         # TODO: make generated sims parameter-specific for parametrised tests
         file = os.path.join(data_dir, sim_config.file)
