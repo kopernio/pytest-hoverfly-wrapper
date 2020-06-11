@@ -20,6 +20,8 @@ LOGGER_NAME = "pytest_hoverfly"
 logger = logging.getLogger(LOGGER_NAME)
 
 
+BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")
+
 BASE_API_URL = "http://localhost:{}/api/v2"
 HOVERFLY_API_MODE = "{}/hoverfly/mode".format(BASE_API_URL)
 HOVERFLY_API_SIMULATION = "{}/simulation".format(BASE_API_URL)
@@ -160,14 +162,6 @@ def pytest_runtest_makereport(item, call):
     if call.when == "call" and call.excinfo:
         item.dont_save_sim = True
 
-BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")
-def template_block_domain_json(domain):
-    with open(BLOCK_DOMAIN_TEMPLATE) as f:
-        sim = f.read()
-        sim = sim.replace("<DOMAIN>", domain)
-
-    return json.loads(sim)
-
 
 @pytest.fixture
 def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, _test_data_dir):
@@ -208,6 +202,14 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
         logger.warning("Killing hoverfly")
         hf_proc.kill()
         logger.warning("Killed hoverfly")
+
+
+def template_block_domain_json(domain):
+    with open(BLOCK_DOMAIN_TEMPLATE) as f:
+        sim = f.read()
+        sim = sim.replace("<DOMAIN>", domain)
+
+    return json.loads(sim)
 
 
 def combine_simulations(simulations, domains_to_block, worker):
