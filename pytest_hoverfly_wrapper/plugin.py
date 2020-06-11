@@ -20,6 +20,8 @@ LOGGER_NAME = "pytest_hoverfly"
 logger = logging.getLogger(LOGGER_NAME)
 
 
+BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")
+
 BASE_API_URL = "http://localhost:{}/api/v2"
 HOVERFLY_API_MODE = "{}/hoverfly/mode".format(BASE_API_URL)
 HOVERFLY_API_SIMULATION = "{}/simulation".format(BASE_API_URL)
@@ -203,7 +205,7 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
 
 
 def template_block_domain_json(domain):
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")) as f:
+    with open(BLOCK_DOMAIN_TEMPLATE) as f:
         sim = f.read()
         sim = sim.replace("<DOMAIN>", domain)
 
@@ -235,11 +237,12 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
-            file = combine_simulations(
-                [os.path.join(data_dir, p) for p in sim_config.file_paths], sim_config.block_domains, admin_port
-            )
+            single_sim_files = [os.path.join(data_dir, p) for p in sim_config.file_paths]
         else:
-            file = None
+            single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
+        combine_simulations(
+            single_sim_files, sim_config.block_domains, admin_port
+        )
     else:
         # TODO: make generated sims parameter-specific for parametrised tests
         file = os.path.join(data_dir, sim_config.file)

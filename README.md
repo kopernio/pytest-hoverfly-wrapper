@@ -111,6 +111,8 @@ during the test, including parameters and headers.
     * Bug fixes and command line option to pass custom parameters to Hoverfly executable command
 * 0.3.0
     * Expose Journal API for accessing journal
+* 0.3.1
+    * Fixes bug where `block_domains` is ignored if a simulation file isn't specified in `StaticSimulation`
 
 ## Meta
 
