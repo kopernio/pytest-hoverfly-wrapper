@@ -6,3 +6,4 @@ Veracode Security Scan results:
 0.1.4 -  VL4+SCA
 0.2.0 -  VL4+SCA
 0.3.0 -  VL4+SCA
+0.3.1 -  VL4+SCA
