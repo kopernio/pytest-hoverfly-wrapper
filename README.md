@@ -109,6 +109,8 @@ during the test, including parameters and headers.
     * Fixes broken domain blocking functionality
 * 0.2.0
     * Bug fixes and command line option to pass custom parameters to Hoverfly executable command
+* 0.3.0
+    * Expose Journal API for accessing journal
 
 ## Meta
 

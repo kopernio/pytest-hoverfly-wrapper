@@ -372,6 +372,11 @@ class JournalAPI:
         return running_journal
 
 
+@pytest.fixture
+def journal_api(setup_hoverfly):
+    return JournalAPI(setup_hoverfly[2])
+
+
 def pytest_unconfigure(config):
     for file in glob.glob("combined_temp*.json"):
         os.remove(file)
