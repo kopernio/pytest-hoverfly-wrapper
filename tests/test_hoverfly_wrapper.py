@@ -48,7 +48,7 @@ def test_custom_test_data_dir(testdir):
         def test_data_dir():
             return "./this/dir/structure/doesnt/exist"
 
-        @pytest.mark.simulated(GeneratedSimulation(), block_domains=["reddit.com"])
+        @pytest.mark.simulated(GeneratedSimulation())
         def test_sth(setup_hoverfly):
             pass
     """
