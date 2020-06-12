@@ -240,7 +240,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
             single_sim_files = [os.path.join(data_dir, p) for p in sim_config.file_paths]
         else:
             single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
-        combine_simulations(
+        file = combine_simulations(
             single_sim_files, sim_config.block_domains, admin_port
         )
     else:
