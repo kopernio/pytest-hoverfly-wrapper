@@ -112,6 +112,11 @@ class DeferPlugin(object):
 def pytest_configure(config):
     if 0:
         config.pluginmanager.register(DeferPlugin())
+    
+    config.addinivalue_line(
+        "markers",
+        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets"
+    )
 
 
 def simulate(file, hf_port, admin_port, node, sim_list=()):
