@@ -113,6 +113,8 @@ during the test, including parameters and headers.
     * Expose Journal API for accessing journal
 * 0.3.2
     * Fixes bug where `block_domains` is ignored if a simulation file isn't specified in `StaticSimulation`
+* 0.3.3
+    * Registers `simulated` marker used by plugin
 
 ## Meta
 
