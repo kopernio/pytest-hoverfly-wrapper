@@ -90,6 +90,27 @@ def test_template_block_domain_json():
     template_block_domain_json("reddit.com")
 
 
+def test_marker_registered(testdir):
+    """Make sure that the plugin's markers are registered."""
+
+    # create a temporary pytest test module
+    testdir.makepyfile(
+        """
+        from pytest_hoverfly_wrapper.simulations import GeneratedSimulation
+        import pytest
+        import requests
+
+        @pytest.mark.simulated(GeneratedSimulation())
+        def test_sth(setup_hoverfly, mocker):
+            pass
+    """
+    )
+
+    # run pytest with the following cmd args
+    result = testdir.runpytest("--strict")
+
+    assert result.ret == 0
+
 # TODO: end-to-end tests covering:
 #  using static sims,
 #  recording and using sims,

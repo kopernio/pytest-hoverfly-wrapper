@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="pytest-hoverfly-wrapper",
-    version="0.3.2",
+    version="0.3.3",
     author="Veli Akiner",
     author_email="veli@kopernio.com",
     maintainer="Veli Akiner",
