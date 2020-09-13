@@ -84,7 +84,8 @@ def pytest_addoption(parser):
 
 @pytest.fixture
 def test_log_directory():
-    directory = os.path.join("hoverfly_logs")
+    foo = ""
+    directory = os.path.join(f"hoverfly_logs{foo}")
     if not os.path.exists(directory):
         os.mkdir(directory)
     return directory
