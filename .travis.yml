@@ -15,7 +15,7 @@ matrix:
 install:
   - pip install tox
   - if ! [ -d ~/bin/hoverfly ];then wget https://github.com/SpectoLabs/hoverfly/releases/download/v0.17.2/hoverfly_bundle_linux_amd64.zip -O hoverfly.zip;fi
-  - if ! [ -d ~/bin/hoverfly ];then unzip hoverfly.zip -d ~/bin;fi
+  - if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
 
 script:
   - tox -e $TOX_ENV
