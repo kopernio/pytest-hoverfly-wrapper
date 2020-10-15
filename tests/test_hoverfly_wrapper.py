@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 
@@ -36,28 +37,31 @@ def test_raise_hoverflycrashedexc(testdir):
 
 def test_custom_test_data_dir(testdir):
     """Test creating a custom directory."""
-
+    custom_dir = "this/dir/structure/doesnt/exist"
     # create a temporary pytest test module
     testdir.makepyfile(
         """
         from pytest_hoverfly_wrapper.simulations import GeneratedSimulation
         import pytest
         import requests
-        
+
         @pytest.fixture
         def test_data_dir():
-            return "./this/dir/structure/doesnt/exist"
+            return "{}"
 
-        @pytest.mark.simulated(GeneratedSimulation())
+        @pytest.mark.simulated(GeneratedSimulation(file="wewlad.json"))
         def test_sth(setup_hoverfly):
             pass
-    """
+    """.format(
+            custom_dir
+        )
     )
 
     # run pytest with the following cmd args
     result = testdir.runpytest()
-
     assert result.ret == 0
+    generated_sim_path = os.path.join(str(testdir), custom_dir, "generated", "*.json")
+    assert glob.glob(generated_sim_path), "No simulation generated"
 
 
 def test_generate_logs(mocker, tmpdir):
@@ -110,6 +114,39 @@ def test_marker_registered(testdir):
     result = testdir.runpytest("--strict")
 
     assert result.ret == 0
+
+
+def test_match_multicookie(testdir):
+    """Make sure that pytest accepts our fixture."""
+
+    # create a temporary pytest test module
+    testdir.makepyfile(
+        """
+        from pytest_hoverfly_wrapper.simulations import StaticSimulation
+        import pytest
+        import requests
+
+        @pytest.fixture
+        def test_data_dir():
+            return "./tests"
+
+        @pytest.mark.simulated(StaticSimulation(files=["match_multiple_cookies.json"]))
+        def test_sth(setup_hoverfly):
+            proxy_port = setup_hoverfly[1]
+            proxies = {
+             "http": "http://localhost:{}".format(proxy_port),
+             "https": "http://localhost:{}".format(proxy_port),
+            }
+            r = requests.get("http://scambaiting.com", proxies=proxies)
+            assert r.status_code == 419
+    """
+    )
+
+    # run pytest with the following cmd args
+    result = testdir.runpytest()
+
+    assert result.ret == 0
+
 
 # TODO: end-to-end tests covering:
 #  using static sims,
