@@ -128,18 +128,21 @@ def test_match_multicookie(testdir):
 
         @pytest.fixture
         def test_data_dir():
-            return "./tests"
+            return "%s"
 
-        @pytest.mark.simulated(StaticSimulation(files=["match_multiple_cookies.json"]))
+        @pytest.mark.simulated(StaticSimulation(files=["match_multiple_cookies.json"], block_domains=["*"]))
         def test_sth(setup_hoverfly):
             proxy_port = setup_hoverfly[1]
             proxies = {
-             "http": "http://localhost:{}".format(proxy_port),
-             "https": "http://localhost:{}".format(proxy_port),
+             "http": "http://localhost:" + format(proxy_port),
+             "https": "http://localhost:" + format(proxy_port),
             }
-            r = requests.get("http://scambaiting.com", proxies=proxies)
-            assert r.status_code == 419
+            
+            cookies = {'foo': '123', 'bar': '456'}
+            r = requests.get("http://scambaiting.com", proxies=proxies, cookies=cookies)
+            assert r.status_code == 419, "Got status code instead: {}".format(r.status_code)
     """
+        % os.path.dirname(os.path.realpath(__file__))
     )
 
     # run pytest with the following cmd args

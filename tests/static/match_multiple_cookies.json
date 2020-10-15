@@ -1,0 +1,50 @@
+{
+    "data": {
+        "pairs": [
+            {
+                "request": {
+                    "path": [
+                        {
+                            "matcher": "glob",
+                            "value": "*"
+                        }
+                    ],
+                    "destination": [
+                        {
+                            "matcher": "exact",
+                            "value": "scambaiting.com"
+                        }
+                    ],
+                    "scheme": [
+                        {
+                            "matcher": "glob",
+                            "value": "http*"
+                        }
+                    ],
+                    "headers": {
+                        "Cookie": [
+                            {
+                                "matcher": "regex",
+                                "value": "(?=.*foo)"
+                            }
+                        ]
+                    }
+                },
+                "response": {
+                    "encodedBody": true,
+                    "status": 419,
+                    "body": "",
+                    "templated": false
+                }
+            }
+        ],
+        "globalActions": {
+            "delays": []
+        }
+    },
+    "meta": {
+        "hoverflyVersion": "v0.17.0",
+        "timeExported": "2018-07-17T11:01:08+01:00",
+        "schemaVersion": "v5"
+    }
+}
