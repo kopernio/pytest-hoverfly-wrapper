@@ -124,10 +124,6 @@ def simulate(file, hf_port, admin_port, node, sim_list=()):
         requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data)
     yield "simulate", hf_port, admin_port
 
-    if hasattr(node, "dont_save_sim"):
-        logger.info("Test did not pass, not updating simulation")
-        return
-
 
 def record(file, node, proxy_port, admin_port, capture_arguments):
     logger.info("Recording a simulation.")
