@@ -111,6 +111,7 @@ def test_marker_registered(testdir):
 
     assert result.ret == 0
 
+
 # TODO: end-to-end tests covering:
 #  using static sims,
 #  recording and using sims,
