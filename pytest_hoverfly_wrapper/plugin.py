@@ -99,17 +99,7 @@ def pytest_collection_modifyitems(session, config, items):
         ]
 
 
-class DeferPlugin(object):
-    """Simple plugin to defer pytest-xdist hook functions."""
-
-    def pytest_configure(self, config):
-        print("Configuring!!!!")
-
-
 def pytest_configure(config):
-    if 0:
-        config.pluginmanager.register(DeferPlugin())
-
     config.addinivalue_line(
         "markers",
         "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets",
