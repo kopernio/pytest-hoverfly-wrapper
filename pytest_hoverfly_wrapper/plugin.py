@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .simulations import StaticSimulation
-
 import glob
 import json
 import logging
@@ -14,6 +12,8 @@ import polling
 import pytest
 import requests
 from dateutil.parser import parse
+
+from .simulations import StaticSimulation
 
 LOGGER_NAME = "pytest_hoverfly"
 
@@ -75,10 +75,7 @@ def pytest_addoption(parser):
         help="Re-records any tests whose generated simulations have expired. Don't use for actual testing.",
     )
     parser.addoption(
-        "--hoverfly-opts",
-        action="store",
-        default="",
-        help="Additional arguments to pass to the Hoverfly executable"
+        "--hoverfly-opts", action="store", default="", help="Additional arguments to pass to the Hoverfly executable"
     )
 
 
@@ -112,10 +109,10 @@ class DeferPlugin(object):
 def pytest_configure(config):
     if 0:
         config.pluginmanager.register(DeferPlugin())
-    
+
     config.addinivalue_line(
         "markers",
-        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets"
+        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets",
     )
 
 
@@ -248,9 +245,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
             single_sim_files = [os.path.join(data_dir, p) for p in sim_config.file_paths]
         else:
             single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
-        file = combine_simulations(
-            single_sim_files, sim_config.block_domains, admin_port
-        )
+        file = combine_simulations(single_sim_files, sim_config.block_domains, admin_port)
     else:
         # TODO: make generated sims parameter-specific for parametrised tests
         file = os.path.join(data_dir, sim_config.file)
