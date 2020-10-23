@@ -151,6 +151,9 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     new_pairs = []
     hosts_to_ignore = [node.ignore] if isinstance(node.ignore, str) else node.ignore
     for pair in data["data"]["pairs"]:
+        # Remove expiry from Set-Cookie headers in Hoverfly responses
+        set_cookie_header = pair["response"]["headers"].get("Set-Cookie", [])
+        set_cookie_header[:] = [re.sub(r"(E|e)xpires=[^;]+;*", "", c) for c in set_cookie_header]
         # Allow us to differentiate cached responses from proxied ones.
         pair["response"]["headers"]["Hoverfly-Cache-Served"] = ["True"]
         # `value` is a URL
