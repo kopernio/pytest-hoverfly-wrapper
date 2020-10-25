@@ -115,6 +115,8 @@ during the test, including parameters and headers.
     * Fixes bug where `block_domains` is ignored if a simulation file isn't specified in `StaticSimulation`
 * 0.3.3
     * Registers `simulated` marker used by plugin
+* 0.4.0
+    * Strips `Expires` property from `Set-Cookie` headers in recorded simulations
 
 ## Meta
 
