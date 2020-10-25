@@ -1,2 +1,2 @@
+from .plugin import LOGGER_NAME, TEST_DATA_DIR, HoverflyCrashedException
 from .simulations import GeneratedSimulation, StaticSimulation
-from .plugin import HoverflyCrashedException, TEST_DATA_DIR, LOGGER_NAME

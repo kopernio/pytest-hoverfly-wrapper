@@ -29,8 +29,6 @@ HOVERFLY_API_JOURNAL = "{}/journal".format(BASE_API_URL)
 
 JOURNAL_LIMIT = 2000
 
-HOVERFLY_SIM_VER = 2  # Increment this to force a refresh of test simulations
-
 HF_ADMIN_PORT = 8888
 PROXY_PORT = 8500
 
@@ -99,17 +97,7 @@ def pytest_collection_modifyitems(session, config, items):
         ]
 
 
-class DeferPlugin(object):
-    """Simple plugin to defer pytest-xdist hook functions."""
-
-    def pytest_configure(self, config):
-        print("Configuring!!!!")
-
-
 def pytest_configure(config):
-    if 0:
-        config.pluginmanager.register(DeferPlugin())
-
     config.addinivalue_line(
         "markers",
         "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets",
@@ -123,10 +111,6 @@ def simulate(file, hf_port, admin_port, node, sim_list=()):
             data = f.read().encode("utf-8")
         requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data)
     yield "simulate", hf_port, admin_port
-
-    if hasattr(node, "dont_save_sim"):
-        logger.info("Test did not pass, not updating simulation")
-        return
 
 
 def record(file, node, proxy_port, admin_port, capture_arguments):
@@ -144,7 +128,6 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     sim = requests.get(HOVERFLY_API_SIMULATION.format(admin_port)).text
 
     data = json.loads(sim)
-    data["meta"]["version"] = HOVERFLY_SIM_VER
     new_pairs = []
     hosts_to_ignore = [node.ignore] if isinstance(node.ignore, str) else node.ignore
     for pair in data["data"]["pairs"]:
@@ -275,10 +258,6 @@ def no_valid_simulation_exists(request, sim_file, max_age_seconds):
     try:
         with open(sim_file) as f:
             sim_metadata = json.loads(f.read())["meta"]
-            sim_ver = sim_metadata.get("version")
-            if not sim_ver or sim_ver < HOVERFLY_SIM_VER:
-                logger.debug("Simulation version is out-of-date.")
-                return True
             date_sim_created = parse(sim_metadata.get("timeExported"))
             age = (datetime.now(timezone.utc) - date_sim_created).total_seconds()
             if request.config.getoption("refreshexpired"):
