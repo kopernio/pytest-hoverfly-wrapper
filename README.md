@@ -117,6 +117,8 @@ during the test, including parameters and headers.
     * Registers `simulated` marker used by plugin
 * 0.4.0
     * Strips `Expires` property from `Set-Cookie` headers in recorded simulations
+* 0.4.1
+    * Fixes typo in installation instructions
 
 ## Meta
 
