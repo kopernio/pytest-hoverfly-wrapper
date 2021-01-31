@@ -12,7 +12,7 @@ python setup.py install
 This will also automatically install the plugin's dependencies. Alternatively, install via `pip`:
 
 
-    pip install python-hoverfly-wrapper
+    pip install pytest-hoverfly-wrapper
 
 
 Once installation has finished:
@@ -117,6 +117,8 @@ during the test, including parameters and headers.
     * Registers `simulated` marker used by plugin
 * 0.4.0
     * Strips `Expires` property from `Set-Cookie` headers in recorded simulations
+* 0.4.1
+    * Fixes typo in installation instructions
 
 ## Meta
 
