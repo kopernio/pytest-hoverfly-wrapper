@@ -105,7 +105,7 @@ def pytest_configure(config):
     )
 
 
-def simulate(file, hf_port, admin_port, node, sim_list=()):
+def simulate(file, hf_port, admin_port):
     logger.info("Simulation exists and is up-to-date. Importing.")
     if file:
         with open(file) as f:
@@ -242,7 +242,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         request.node.mode = "simulate"
         for sim in sim_config.file_paths:
             logger.info("Static simulations used in test: {}".format(sim))
-        yield from simulate(file, port, admin_port, request.node, sim_config.file_paths)
+        yield from simulate(file, port, admin_port)
     elif request.config.getoption("forcelive") or no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
@@ -256,7 +256,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
             file = combine_simulations(
                 [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
             )
-        yield from simulate(file, port, admin_port, request.node, sim_config.static_files)
+        yield from simulate(file, port, admin_port)
 
 
 def no_valid_simulation_exists(request, sim_file, max_age_seconds):
