@@ -228,7 +228,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         file = os.path.join(data_dir, sim_config.file)
     elif record_static:
         # Specifying one static simulation that doesn't exist implies we want to record it once, then use it.
-        file = os.path.join(data_dir, sim_config.files[0])
+        file = os.path.join(data_dir, "static", sim_config.files[0])
     else:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
