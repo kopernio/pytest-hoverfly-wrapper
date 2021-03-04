@@ -249,13 +249,14 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     else:
         request.node.mode = "simulate"
         logger.info("Loading file: {}".format(file))
-        for sim in sim_config.static_files:
-            logger.info("Static simulations used in test: {}".format(sim))
-        if sim_config.static_files:
-            # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            file = combine_simulations(
-                [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
-            )
+        if not is_static:
+            for sim in sim_config.static_files:
+                logger.info("Static simulations used in test: {}".format(sim))
+            if sim_config.static_files:
+                # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
+                file = combine_simulations(
+                    [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
+                )
         yield from simulate(file, port, admin_port)
 
 
