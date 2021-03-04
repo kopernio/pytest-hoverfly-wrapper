@@ -7,7 +7,7 @@ class StaticSimulation:
     file_type = "static"
     max_age = None  # Static simulations have no expiry
 
-    def __init__(self, files: list = None, block_domains: list = ()):
+    def __init__(self, files: list = None, block_domains: list = (), capture_config=None):
         """
         :list file: list of files that are used in the simulation
         :list block_domains: list of domains (or domain glob patterns) for which simulations will be generated to
@@ -15,7 +15,7 @@ class StaticSimulation:
         """
         self.files = files if files else []
         self.block_domains = block_domains
-
+        self.capture_config = capture_config
         self.file_paths = [os.path.join(self.file_type, file) for file in self.files]
 
 

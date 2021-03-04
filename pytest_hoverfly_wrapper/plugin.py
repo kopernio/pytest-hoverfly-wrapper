@@ -105,7 +105,7 @@ def pytest_configure(config):
     )
 
 
-def simulate(file, hf_port, admin_port, node, sim_list=()):
+def simulate(file, hf_port, admin_port):
     logger.info("Simulation exists and is up-to-date. Importing.")
     if file:
         with open(file) as f:
@@ -222,7 +222,14 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     is_static = isinstance(sim_config, StaticSimulation)
-    if is_static:
+    record_static = is_static and len(sim_config.file_paths) == 1 and not os.path.isfile(sim_config.file_paths[0])
+    if not is_static:
+        # TODO: make generated sims parameter-specific for parametrised tests
+        file = os.path.join(data_dir, sim_config.file)
+    elif record_static:
+        # Specifying one static simulation that doesn't exist implies we want to record it once, then use it.
+        file = os.path.join(data_dir, "static", sim_config.files[0])
+    else:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
@@ -230,29 +237,27 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         else:
             single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
         file = combine_simulations(single_sim_files, sim_config.block_domains, admin_port)
-    else:
-        # TODO: make generated sims parameter-specific for parametrised tests
-        file = os.path.join(data_dir, sim_config.file)
 
-    if is_static:
+    if is_static and not record_static:
         request.node.mode = "simulate"
         for sim in sim_config.file_paths:
             logger.info("Static simulations used in test: {}".format(sim))
-        yield from simulate(file, port, admin_port, request.node, sim_config.file_paths)
+        yield from simulate(file, port, admin_port)
     elif request.config.getoption("forcelive") or no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
     else:
         request.node.mode = "simulate"
         logger.info("Loading file: {}".format(file))
-        for sim in sim_config.static_files:
-            logger.info("Static simulations used in test: {}".format(sim))
-        if sim_config.static_files:
-            # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            file = combine_simulations(
-                [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
-            )
-        yield from simulate(file, port, admin_port, request.node, sim_config.static_files)
+        if not is_static:
+            for sim in sim_config.static_files:
+                logger.info("Static simulations used in test: {}".format(sim))
+            if sim_config.static_files:
+                # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
+                file = combine_simulations(
+                    [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
+                )
+        yield from simulate(file, port, admin_port)
 
 
 def no_valid_simulation_exists(request, sim_file, max_age_seconds):

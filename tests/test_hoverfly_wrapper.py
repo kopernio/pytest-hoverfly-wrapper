@@ -100,6 +100,44 @@ def test_generate_sim(testdir):
     assert result.ret == 0
 
 
+def test_record_static(testdir):
+    # Like the last test but for a static simulation with just one file
+    sim_file = os.path.join(TEST_DATA_DIR, "static", "foobar.json")
+    try:
+        os.remove(sim_file)
+    except FileNotFoundError:
+        pass
+    assert not os.path.exists(sim_file)
+
+    # Run a test with the GeneratedSimulation marker to verify we get a simulation file
+    base_pyfile = dedent(
+        """
+    from pytest_hoverfly_wrapper.simulations import StaticSimulation
+    import pytest
+    import requests
+    
+    @pytest.mark.simulated(StaticSimulation(files=["foobar.json"]))
+    def test_generate(setup_hoverfly):
+        proxy_port = setup_hoverfly[1]
+        proxies = {
+            "http": "http://localhost:{}".format(proxy_port),
+            "https": "http://localhost:{}".format(proxy_port),
+        }
+        r = requests.get("http://google.com", proxies=proxies)
+    """
+    )
+    testdir.makepyfile(base_pyfile)
+    result = testdir.runpytest()
+    assert result.ret == 0
+    assert os.path.isfile(sim_file)
+
+    # Run the test again, but this time check for the Hoverfly-Cache-Served header, which indicates that the simulation was used.
+    assert_cached_response = """    assert r.headers.get("Hoverfly-Cache-Served")"""
+    testdir.makepyfile(base_pyfile + assert_cached_response)
+    result = testdir.runpytest("-s")
+    assert result.ret == 0
+
+
 def test_generate_logs(mocker, tmpdir):
     mock_request = mocker.MagicMock()
     mock_request.node.sensitive = ["sensitive.host"]
