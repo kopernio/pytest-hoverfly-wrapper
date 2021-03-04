@@ -222,7 +222,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     is_static = isinstance(sim_config, StaticSimulation)
-    record_static = len(sim_config.file_paths) == 1 and not os.path.isfile(sim_config.file_paths[0])
+    record_static = is_static and len(sim_config.file_paths) == 1 and not os.path.isfile(sim_config.file_paths[0])
     if not is_static:
         # TODO: make generated sims parameter-specific for parametrised tests
         file = os.path.join(data_dir, sim_config.file)
