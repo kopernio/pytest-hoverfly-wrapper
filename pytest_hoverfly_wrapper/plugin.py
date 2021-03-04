@@ -222,7 +222,14 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     is_static = isinstance(sim_config, StaticSimulation)
-    if is_static:
+    record_static = len(sim_config.file_paths) == 1 and not os.path.isfile(sim_config.file_paths[0])
+    if not is_static:
+        # TODO: make generated sims parameter-specific for parametrised tests
+        file = os.path.join(data_dir, sim_config.file)
+    elif record_static:
+        # Specifying one static simulation that doesn't exist implies we want to record it once, then use it.
+        file = os.path.join(data_dir, sim_config.files[0])
+    else:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if sim_config.file_paths:
@@ -230,11 +237,8 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         else:
             single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
         file = combine_simulations(single_sim_files, sim_config.block_domains, admin_port)
-    else:
-        # TODO: make generated sims parameter-specific for parametrised tests
-        file = os.path.join(data_dir, sim_config.file)
 
-    if is_static:
+    if is_static and not record_static:
         request.node.mode = "simulate"
         for sim in sim_config.file_paths:
             logger.info("Static simulations used in test: {}".format(sim))
