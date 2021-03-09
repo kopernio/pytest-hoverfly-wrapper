@@ -1,0 +1,4 @@
+polling
+pytest>=3.7.0
+python-dateutil
+requests
