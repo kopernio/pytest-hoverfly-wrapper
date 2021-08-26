@@ -26,7 +26,9 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">=3.5",
     install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling"],
-    tests_require=["pytest-mock",],
+    tests_require=[
+        "pytest-mock",
+    ],
     packages=["pytest_hoverfly_wrapper"],
     include_package_data=True,
     classifiers=[
@@ -44,5 +46,9 @@ setup(
         "Operating System :: OS Independent",
         "License :: OSI Approved :: MIT License",
     ],
-    entry_points={"pytest11": ["hoverfly-wrapper = pytest_hoverfly_wrapper.plugin",],},
+    entry_points={
+        "pytest11": [
+            "hoverfly-wrapper = pytest_hoverfly_wrapper.plugin",
+        ],
+    },
 )
