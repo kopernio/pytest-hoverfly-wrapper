@@ -132,6 +132,8 @@ during the test, including parameters and headers.
     * Strips `Expires` property from `Set-Cookie` headers in recorded simulations
 * 0.4.1
     * Fixes typo in installation instructions
+* 0.5.0
+    * Records simulations for static simulations if they don't exist yet
 
 ## Meta
 
