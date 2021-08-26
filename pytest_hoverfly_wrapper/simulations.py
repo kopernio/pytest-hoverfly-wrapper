@@ -27,9 +27,11 @@ class StaticSimulation:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if self.file_paths:
-            return combine_simulations([os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port)
+            return combine_simulations(
+                [os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port
+            )
         else:
-            return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE],domains_to_block=(), worker=admin_port)
+            return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
 
 
 class GeneratedSimulation:
