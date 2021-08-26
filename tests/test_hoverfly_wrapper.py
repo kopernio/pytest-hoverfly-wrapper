@@ -32,7 +32,9 @@ def test_raise_hoverflycrashedexc(testdir):
     assert result.ret == 1
 
     result.stdout.fnmatch_lines(
-        ["*raise HoverflyCrashedException*",]
+        [
+            "*raise HoverflyCrashedException*",
+        ]
     )
 
 
