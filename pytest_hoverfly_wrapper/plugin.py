@@ -14,14 +14,11 @@ import pytest
 import requests
 from dateutil.parser import parse
 
-from .simulations import StaticSimulation
+from .simulations import StaticSimulation, combine_simulations
 
 LOGGER_NAME = "pytest_hoverfly"
 
 logger = logging.getLogger(LOGGER_NAME)
-
-
-BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")
 
 BASE_API_URL = "http://localhost:{}/api/v2"
 HOVERFLY_API_MODE = "{}/hoverfly/mode".format(BASE_API_URL)
@@ -193,74 +190,26 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
         logger.warning("Killed hoverfly")
 
 
-def template_block_domain_json(domain):
-    with open(BLOCK_DOMAIN_TEMPLATE) as f:
-        sim = f.read()
-        sim = sim.replace("<DOMAIN>", domain)
-
-    return json.loads(sim)
-
-
-def combine_simulations(simulations, domains_to_block, worker):
-    with open(simulations[0]) as f:
-        combined_sim = json.loads(f.read())
-
-    for sim in simulations[1:]:
-        with open(sim) as f:
-            pairs = json.loads(f.read())["data"]["pairs"]
-            combined_sim["data"]["pairs"] += pairs
-    for domain in domains_to_block:
-        pairs = template_block_domain_json(domain)["data"]["pairs"]
-        combined_sim["data"]["pairs"] += pairs
-    file_name = "combined_temp_{}.json".format(worker)
-    with open(file_name, "w") as f:
-        f.write(json.dumps(combined_sim, indent=4, separators=(",", ": ")))
-    return file_name
-
-
 def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
-    is_static = isinstance(sim_config, StaticSimulation)
-    record_static = is_static and len(sim_config.file_paths) == 1 and not os.path.isfile(sim_config.file_paths[0])
-    if not is_static:
-        # TODO: make generated sims parameter-specific for parametrised tests
-        file = os.path.join(data_dir, sim_config.file)
-    elif record_static:
-        # Specifying one static simulation that doesn't exist implies we want to record it once, then use it.
-        file = os.path.join(data_dir, "static", sim_config.files[0])
-    else:
-        # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
-        # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
-        if sim_config.file_paths:
-            single_sim_files = [os.path.join(data_dir, p) for p in sim_config.file_paths]
-        else:
-            single_sim_files = [BLOCK_DOMAIN_TEMPLATE]
-        file = combine_simulations(single_sim_files, sim_config.block_domains, admin_port)
-
-    if is_static and not record_static:
-        request.node.mode = "simulate"
-        for sim in sim_config.file_paths:
-            logger.info("Static simulations used in test: {}".format(sim))
-        yield from simulate(file, port, admin_port)
-    elif request.config.getoption("forcelive") or no_valid_simulation_exists(request, file, sim_config.max_age):
+    file = sim_config.full_file_path(data_dir, admin_port)
+    print(file)
+    print(file)
+    print(file)
+    print(file)
+    if no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
     else:
         request.node.mode = "simulate"
         logger.info("Loading file: {}".format(file))
-        if not is_static:
-            for sim in sim_config.static_files:
-                logger.info("Static simulations used in test: {}".format(sim))
-            if sim_config.static_files:
-                # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-                file = combine_simulations(
-                    [os.path.join(data_dir, p) for p in (*sim_config.static_files, file)], (), admin_port
-                )
         yield from simulate(file, port, admin_port)
 
 
 def no_valid_simulation_exists(request, sim_file, max_age_seconds):
+    if request.config.getoption("forcelive"):
+        return True
     try:
         with open(sim_file) as f:
             sim_metadata = json.loads(f.read())["meta"]
