@@ -135,7 +135,7 @@ during the test, including parameters and headers.
 
 ## Meta
 
-For all queries contact Veli Akiner: veli@kopernio.com
+For all queries contact Veli Akiner: https://www.linkedin.com/in/veli-akiner-70a19b69/
 
 Distributed under a modified MIT license. See ``LICENSE`` for more information.
 
