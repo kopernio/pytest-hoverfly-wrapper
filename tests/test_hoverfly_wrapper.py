@@ -5,7 +5,8 @@ from textwrap import dedent
 import pytest
 import requests
 
-from pytest_hoverfly_wrapper.plugin import TEST_DATA_DIR, generate_logs, template_block_domain_json
+from pytest_hoverfly_wrapper.plugin import TEST_DATA_DIR, generate_logs
+from pytest_hoverfly_wrapper.simulations import template_block_domain_json
 
 
 def test_raise_hoverflycrashedexc(testdir):
@@ -135,6 +136,30 @@ def test_record_static(testdir):
     assert_cached_response = """    assert r.headers.get("Hoverfly-Cache-Served")"""
     testdir.makepyfile(base_pyfile + assert_cached_response)
     result = testdir.runpytest("-s")
+    assert result.ret == 0
+
+
+def test_existing_static(testdir):
+    """Test static simulation functionality"""
+    base_pyfile = dedent(
+        """
+    from pytest_hoverfly_wrapper.simulations import StaticSimulation
+    import pytest
+    import requests
+    
+    @pytest.mark.simulated(StaticSimulation(files=["google_returns_404.json"]))
+    def test_generate(setup_hoverfly):
+        proxy_port = setup_hoverfly[1]
+        proxies = {
+            "http": "http://localhost:{}".format(proxy_port),
+            "https": "http://localhost:{}".format(proxy_port),
+        }
+        r = requests.get("http://google.com", proxies=proxies)
+        assert r.status_code == 404
+    """
+    )
+    testdir.makepyfile(base_pyfile)
+    result = testdir.runpytest()
     assert result.ret == 0
 
 

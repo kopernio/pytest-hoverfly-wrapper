@@ -74,4 +74,5 @@ target/
 
 .idea/
 hoverfly_logs
-test_data/
+test_data/generated
+test_data/static/foobar.json
