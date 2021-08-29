@@ -29,6 +29,10 @@ jobs:
     - name: Install dependencies
       run: |
         python setup.py install
+    - name: Install Hoverfly
+      run: |
+        if ! [ -d ~/bin/hoverfly ];then wget https://github.com/SpectoLabs/hoverfly/releases/download/v0.17.2/hoverfly_bundle_linux_amd64.zip -O hoverfly.zip;fi
+        if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
     - name: Run tests
       run: |
         pytest tests/ -v
