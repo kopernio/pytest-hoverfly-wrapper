@@ -35,5 +35,5 @@ jobs:
         if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
     - name: Run tests
       run: |
-        echo $PATH
+        export PATH=$PATH:/home/runner/bin/
         pytest tests/ -v
