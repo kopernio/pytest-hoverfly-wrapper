@@ -1,0 +1,40 @@
+name: Tests
+
+on: pull_request
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental }}
+    strategy:
+      matrix:
+        python-version:
+        - 3.6
+        - 3.7
+        - 3.8
+        - 3.9
+        experimental: [false]
+        include:
+          - python-version: 3.10.0-alpha - 3.10.0
+            experimental: true
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python setup.py install
+        pip install -r requirements-test.txt
+    - name: Install Hoverfly
+      run: |
+        if ! [ -d ~/bin/hoverfly ];then wget https://github.com/SpectoLabs/hoverfly/releases/download/v0.17.2/hoverfly_bundle_linux_amd64.zip -O hoverfly.zip;fi
+        if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
+    - name: Run tests
+      run: |
+        export PATH=$PATH:/home/runner/bin/
+        pytest tests/ -v
