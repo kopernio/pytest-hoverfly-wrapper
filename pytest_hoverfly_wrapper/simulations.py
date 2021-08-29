@@ -1,3 +1,4 @@
+import json
 import os
 import time
 
@@ -7,7 +8,7 @@ class StaticSimulation:
     file_type = "static"
     max_age = None  # Static simulations have no expiry
 
-    def __init__(self, files: list = None, block_domains: list = ()):
+    def __init__(self, files: list = None, block_domains: list = (), capture_config=None):
         """
         :list file: list of files that are used in the simulation
         :list block_domains: list of domains (or domain glob patterns) for which simulations will be generated to
@@ -15,8 +16,22 @@ class StaticSimulation:
         """
         self.files = files if files else []
         self.block_domains = block_domains
-
+        self.capture_config = capture_config
         self.file_paths = [os.path.join(self.file_type, file) for file in self.files]
+
+    def full_file_path(self, data_dir, admin_port):
+        # Specifying one static simulation that doesn't exist implies we want to record it once, then use it.
+        if len(self.file_paths) == 1:
+            return os.path.join(data_dir, "static", self.files[0])
+
+        # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
+        # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
+        if self.file_paths:
+            return combine_simulations(
+                [os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port
+            )
+        else:
+            return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
 
 
 class GeneratedSimulation:
@@ -35,3 +50,42 @@ class GeneratedSimulation:
         self.capture_config = capture_config
         self.static_files = list(static_files) + self.default_static_files
         self.static_files = [os.path.join("static", file) for file in self.static_files]
+
+    def full_file_path(self, data_dir, admin_port):
+        for sim in self.static_files:
+            pass
+            # logger.info("Static simulations used in test: {}".format(sim))
+        if self.static_files:
+            # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
+            return combine_simulations(
+                [os.path.join(data_dir, p) for p in (*self.static_files, self.file)], (), admin_port
+            )
+        return os.path.join(data_dir, self.file)
+
+
+def combine_simulations(simulations, domains_to_block, worker):
+    with open(simulations[0]) as f:
+        combined_sim = json.loads(f.read())
+
+    for sim in simulations[1:]:
+        with open(sim) as f:
+            pairs = json.loads(f.read())["data"]["pairs"]
+            combined_sim["data"]["pairs"] += pairs
+    for domain in domains_to_block:
+        pairs = template_block_domain_json(domain)["data"]["pairs"]
+        combined_sim["data"]["pairs"] += pairs
+    file_name = "combined_temp_{}.json".format(worker)
+    with open(file_name, "w") as f:
+        f.write(json.dumps(combined_sim, indent=4, separators=(",", ": ")))
+    return file_name
+
+
+def template_block_domain_json(domain):
+    with open(BLOCK_DOMAIN_TEMPLATE) as f:
+        sim = f.read()
+        sim = sim.replace("<DOMAIN>", domain)
+
+    return json.loads(sim)
+
+
+BLOCK_DOMAIN_TEMPLATE = os.path.join(os.path.dirname(os.path.realpath(__file__)), "block_domain_template.json")

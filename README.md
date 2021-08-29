@@ -21,6 +21,19 @@ Once installation has finished:
   2. Download the correct package for your operating system
   3. Extract the `hoverfly` and `hoverctl` files and ensure that these are in your PATH.
 
+## Testing
+The quickest way is to run tox:
+```
+pip install tox
+tox -e <py35/py36/etc>
+```
+You can also run in pytest to make use of its debugging tools:
+(Assumes you have a virtual environment set up for a compatible Python version - see setup.py for compatible versions)
+```
+python setup.py install
+pytest tests/
+```
+
 ## Usage example
 
 ### Cache responses to external services
@@ -119,10 +132,12 @@ during the test, including parameters and headers.
     * Strips `Expires` property from `Set-Cookie` headers in recorded simulations
 * 0.4.1
     * Fixes typo in installation instructions
+* 0.5.0
+    * Records simulations for static simulations if they don't exist yet
 
 ## Meta
 
-For all queries contact Veli Akiner: veli@kopernio.com
+For all queries contact Veli Akiner: https://www.linkedin.com/in/veli-akiner-70a19b69/
 
 Distributed under a modified MIT license. See ``LICENSE`` for more information.
 
