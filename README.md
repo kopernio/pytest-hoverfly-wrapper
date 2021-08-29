@@ -31,6 +31,7 @@ You can also run in pytest to make use of its debugging tools:
 (Assumes you have a virtual environment set up for a compatible Python version - see setup.py for compatible versions)
 ```
 python setup.py install
+pip install -r requirements-test.txt
 pytest tests/
 ```
 
