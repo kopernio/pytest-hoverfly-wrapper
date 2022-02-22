@@ -98,7 +98,8 @@ def pytest_collection_modifyitems(session, config, items):
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
-        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets",
+        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests "
+        "made in tests, rather than receiving responses from their intended targets",
     )
 
 
@@ -116,7 +117,8 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     if not capture_arguments:
         capture_arguments = {"headersWhitelist": ["Cookie"]}
         # TODO: optionally enable this.
-        # capture_arguments = {"headersWhitelist": ["Cookie"], "stateful": True} #use these parameters (+ loosening some of the matches) for recording static simulations.
+        # use these parameters (+ loosening some of the matches) for recording static simulations.
+        # capture_arguments = {"headersWhitelist": ["Cookie"], "stateful": True}
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "capture", "arguments": capture_arguments})
     yield "record", proxy_port, admin_port
     if hasattr(node, "dont_save_sim"):

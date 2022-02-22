@@ -43,7 +43,8 @@ class GeneratedSimulation:
         :str file: the file simulations are recorded to or read from
         :int max_age: if not None, tells the tests how long a generated simulation is valid for (in seconds)
         :dict capture_config: overrides the existing Hoverfly simulation capture settings
-        :tuple static_files: static file simulations that get used in combination with recorded simulations. These aren't used when a simulation is being recorded.
+        :tuple static_files: static file simulations that get used in combination with recorded simulations.
+            These aren't used when a simulation is being recorded.
         """
         self.file = os.path.join(self.file_type, file or "temp_{}.json".format(time.time()))
         self.max_age = max_age
@@ -56,7 +57,8 @@ class GeneratedSimulation:
             pass
             # logger.info("Static simulations used in test: {}".format(sim))
         if self.static_files:
-            # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
+            # The order is important here: `extra` typically contains fallback matchers.
+            # So add it first so that Hoverfly prioritises matchers in the recorded simulation.
             return combine_simulations(
                 [os.path.join(data_dir, p) for p in (*self.static_files, self.file)], (), admin_port
             )
