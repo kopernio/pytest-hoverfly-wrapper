@@ -18,8 +18,8 @@ def test_data_dir():
 def test_something(setup_hoverfly):
     proxy_port = setup_hoverfly[1]
     proxies = {
-        "http": "http://localhost:{}".format(proxy_port),
-        "https": "http://localhost:{}".format(proxy_port),
+        "http": f"http://localhost:{proxy_port}",
+        "https": f"http://localhost:{proxy_port}",
     }
     r = requests.get("http://google.com", proxies=proxies)
     assert r.status_code == 404

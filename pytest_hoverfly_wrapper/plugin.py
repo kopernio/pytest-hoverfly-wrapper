@@ -21,9 +21,9 @@ LOGGER_NAME = "pytest_hoverfly"
 logger = logging.getLogger(LOGGER_NAME)
 
 BASE_API_URL = "http://localhost:{}/api/v2"
-HOVERFLY_API_MODE = "{}/hoverfly/mode".format(BASE_API_URL)
-HOVERFLY_API_SIMULATION = "{}/simulation".format(BASE_API_URL)
-HOVERFLY_API_JOURNAL = "{}/journal".format(BASE_API_URL)
+HOVERFLY_API_MODE = f"{BASE_API_URL}/hoverfly/mode"
+HOVERFLY_API_SIMULATION = f"{BASE_API_URL}/simulation"
+HOVERFLY_API_JOURNAL = f"{BASE_API_URL}/journal"
 
 JOURNAL_LIMIT = 2000
 
@@ -244,11 +244,11 @@ def pytest_runtest_call(item):
     if "setup_hoverfly" not in item.fixturenames:
         return
     try:
-        requests.get("http://localhost:{}".format(item.config.admin_port))
+        requests.get(f"http://localhost:{item.config.admin_port}")
     except requests.exceptions.ConnectionError:
         logger.warning("Hoverfly crashed.")
         try:
-            requests.get("http://localhost:{}".format(item.config.admin_port))
+            requests.get(f"http://localhost:{item.config.admin_port}")
         except requests.exceptions.ConnectionError:
 
             def raise_hoverfly_exception():
@@ -278,7 +278,7 @@ def generate_logs(request, journal_api, test_log_directory):
                 ):
                     assert pair["response"]["headers"].get(
                         "Hoverfly-Cache-Served"
-                    ), "Warning: sensitive URL is being hit in a simulated test: {}".format(pair["request"])
+                    ), f"Warning: sensitive URL is being hit in a simulated test: {pair['request']}"
         finally:
             f.write(json.dumps(loaded_journal, indent=4, separators=(",", ": ")))
 
@@ -297,8 +297,7 @@ class JournalAPI:
         def get_running_journal():
             return json.loads(
                 requests.get(
-                    HOVERFLY_API_JOURNAL.format(self.admin_port)
-                    + "?limit={}&offset={}".format(journals_per_request, offset)
+                    HOVERFLY_API_JOURNAL.format(self.admin_port) + f"?limit={journals_per_request}&offset={offset}"
                 ).text
             )
 

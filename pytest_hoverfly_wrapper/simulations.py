@@ -46,7 +46,7 @@ class GeneratedSimulation:
         :tuple static_files: static file simulations that get used in combination with recorded simulations.
             These aren't used when a simulation is being recorded.
         """
-        self.file = os.path.join(self.file_type, file or "temp_{}.json".format(time.time()))
+        self.file = os.path.join(self.file_type, file or f"temp_{time.time()}.json")
         self.max_age = max_age
         self.capture_config = capture_config
         self.static_files = list(static_files) + self.default_static_files
@@ -76,7 +76,7 @@ def combine_simulations(simulations, domains_to_block, worker):
     for domain in domains_to_block:
         pairs = template_block_domain_json(domain)["data"]["pairs"]
         combined_sim["data"]["pairs"] += pairs
-    file_name = "combined_temp_{}.json".format(worker)
+    file_name = f"combined_temp_{worker}.json"
     with open(file_name, "w") as f:
         f.write(json.dumps(combined_sim, indent=4, separators=(",", ": ")))
     return file_name
