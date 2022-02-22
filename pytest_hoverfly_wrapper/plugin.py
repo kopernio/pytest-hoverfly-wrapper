@@ -201,7 +201,7 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
     else:
         request.node.mode = "simulate"
-        logger.info("Loading file: {}".format(file))
+        logger.info("Loading file: %s", file)
         yield from simulate(file, port, admin_port)
 
 
