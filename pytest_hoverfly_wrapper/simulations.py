@@ -1,11 +1,8 @@
 import json
 import os
 import time
-import logging
 
-from pytest_hoverfly_wrapper import LOGGER_NAME
-
-logger = logging.getLogger(LOGGER_NAME)
+from .logger import logger
 
 
 class StaticSimulation:

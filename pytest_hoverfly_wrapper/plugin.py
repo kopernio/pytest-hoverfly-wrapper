@@ -2,7 +2,6 @@
 
 import glob
 import json
-import logging
 import os
 import re
 import subprocess
@@ -14,11 +13,8 @@ import pytest
 import requests
 from dateutil.parser import parse
 
+from .logger import logger
 from .simulations import StaticSimulation
-
-LOGGER_NAME = "pytest_hoverfly"
-
-logger = logging.getLogger(LOGGER_NAME)
 
 BASE_API_URL = "http://localhost:{}/api/v2"
 HOVERFLY_API_MODE = f"{BASE_API_URL}/hoverfly/mode"
