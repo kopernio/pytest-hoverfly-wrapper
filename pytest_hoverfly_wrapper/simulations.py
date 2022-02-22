@@ -32,10 +32,10 @@ class StaticSimulation:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if self.file_paths:
-            return combine_simulations(
+            return _combine_simulations(
                 [os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port
             )
-        return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
+        return _combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
 
 
 class GeneratedSimulation:
@@ -62,13 +62,13 @@ class GeneratedSimulation:
         if self.static_files:
             # The order is important here: `extra` typically contains fallback matchers.
             # So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            return combine_simulations(
+            return _combine_simulations(
                 [os.path.join(data_dir, p) for p in (*self.static_files, self.file)], (), admin_port
             )
         return os.path.join(data_dir, self.file)
 
 
-def combine_simulations(simulations, domains_to_block, worker):
+def _combine_simulations(simulations, domains_to_block, worker):
     with open(simulations[0]) as f:
         combined_sim = json.load(f)
 

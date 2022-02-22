@@ -14,7 +14,7 @@ import pytest
 import requests
 from dateutil.parser import parse
 
-from .simulations import StaticSimulation, combine_simulations
+from .simulations import StaticSimulation
 
 LOGGER_NAME = "pytest_hoverfly"
 
@@ -229,6 +229,7 @@ def no_valid_simulation_exists(request, sim_file, max_age_seconds):
 
 @pytest.fixture
 def hf_ports(request):
+    """Sets a unique port for each worker thread to talk to its instance of hoverfly."""
     if hasattr(request.config, "slaveinput"):
         increment = int(request.config.slaveinput["slaveid"][-1])
     else:
