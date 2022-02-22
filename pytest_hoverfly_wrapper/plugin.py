@@ -2,7 +2,6 @@
 
 import glob
 import json
-import logging
 import os
 import re
 import subprocess
@@ -14,16 +13,13 @@ import pytest
 import requests
 from dateutil.parser import parse
 
-from .simulations import StaticSimulation, combine_simulations
-
-LOGGER_NAME = "pytest_hoverfly"
-
-logger = logging.getLogger(LOGGER_NAME)
+from .logger import logger
+from .simulations import StaticSimulation
 
 BASE_API_URL = "http://localhost:{}/api/v2"
-HOVERFLY_API_MODE = "{}/hoverfly/mode".format(BASE_API_URL)
-HOVERFLY_API_SIMULATION = "{}/simulation".format(BASE_API_URL)
-HOVERFLY_API_JOURNAL = "{}/journal".format(BASE_API_URL)
+HOVERFLY_API_MODE = f"{BASE_API_URL}/hoverfly/mode"
+HOVERFLY_API_SIMULATION = f"{BASE_API_URL}/simulation"
+HOVERFLY_API_JOURNAL = f"{BASE_API_URL}/journal"
 
 JOURNAL_LIMIT = 2000
 
@@ -52,8 +48,8 @@ def test_data_dir():
 
 @pytest.fixture
 def _test_data_dir(test_data_dir):
-    for d in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
-        Path(d).mkdir(parents=True, exist_ok=True)
+    for dir_ in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
+        Path(dir_).mkdir(parents=True, exist_ok=True)
     return test_data_dir
 
 
@@ -98,7 +94,8 @@ def pytest_collection_modifyitems(session, config, items):
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
-        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests made in tests, rather than receiving responses from their intended targets",
+        "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests "
+        "made in tests, rather than receiving responses from their intended targets",
     )
 
 
@@ -116,7 +113,8 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     if not capture_arguments:
         capture_arguments = {"headersWhitelist": ["Cookie"]}
         # TODO: optionally enable this.
-        # capture_arguments = {"headersWhitelist": ["Cookie"], "stateful": True} #use these parameters (+ loosening some of the matches) for recording static simulations.
+        # use these parameters (+ loosening some of the matches) for recording static simulations.
+        # capture_arguments = {"headersWhitelist": ["Cookie"], "stateful": True}
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "capture", "arguments": capture_arguments})
     yield "record", proxy_port, admin_port
     if hasattr(node, "dont_save_sim"):
@@ -157,27 +155,27 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     if not hasattr(request.config, "slaveinput"):
         # Cleaning up any running hoverctl processes is nice, but too risky in distributed mode
         subprocess.Popen(["hoverctl", "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
-    f = open(os.path.join(test_log_directory, "hoverfly.log"), "w")
 
     logger.info("Starting hoverfly")
     add_opts = request.config.getoption("hoverfly_opts")
     hoverfly_cmd = ["hoverfly", "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
     exc = None
-    for _ in range(3):
-        hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
-        try:
-            polling.poll(
-                target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port)).status_code == 200,
-                step=0.2,
-                timeout=5,
-                ignore_exceptions=requests.exceptions.ConnectionError,
-            )
-            break
-        except polling.TimeoutException as e:
-            exc = e
-            subprocess.Popen(["ps", "-ef"], stdout=f, stderr=f).wait()
-    else:
-        raise exc
+    with open(os.path.join(test_log_directory, "hoverfly.log"), "w") as f:
+        for _ in range(3):
+            hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
+            try:
+                polling.poll(
+                    target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port)).status_code == 200,
+                    step=0.2,
+                    timeout=5,
+                    ignore_exceptions=requests.exceptions.ConnectionError,
+                )
+                break
+            except polling.TimeoutException as e:
+                exc = e
+                subprocess.Popen(["ps", "-ef"], stdout=f, stderr=f).wait()
+        else:
+            raise exc
 
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"})
 
@@ -194,16 +192,12 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     file = sim_config.full_file_path(data_dir, admin_port)
-    print(file)
-    print(file)
-    print(file)
-    print(file)
     if no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
     else:
         request.node.mode = "simulate"
-        logger.info("Loading file: {}".format(file))
+        logger.info("Loading file: %s", file)
         yield from simulate(file, port, admin_port)
 
 
@@ -231,6 +225,7 @@ def no_valid_simulation_exists(request, sim_file, max_age_seconds):
 
 @pytest.fixture
 def hf_ports(request):
+    """Sets a unique port for each worker thread to talk to its instance of hoverfly."""
     if hasattr(request.config, "slaveinput"):
         increment = int(request.config.slaveinput["slaveid"][-1])
     else:
@@ -246,11 +241,11 @@ def pytest_runtest_call(item):
     if "setup_hoverfly" not in item.fixturenames:
         return
     try:
-        requests.get("http://localhost:{}".format(item.config.admin_port))
+        requests.get(f"http://localhost:{item.config.admin_port}")
     except requests.exceptions.ConnectionError:
         logger.warning("Hoverfly crashed.")
         try:
-            requests.get("http://localhost:{}".format(item.config.admin_port))
+            requests.get(f"http://localhost:{item.config.admin_port}")
         except requests.exceptions.ConnectionError:
 
             def raise_hoverfly_exception():
@@ -280,7 +275,7 @@ def generate_logs(request, journal_api, test_log_directory):
                 ):
                     assert pair["response"]["headers"].get(
                         "Hoverfly-Cache-Served"
-                    ), "Warning: sensitive URL is being hit in a simulated test: {}".format(pair["request"])
+                    ), f"Warning: sensitive URL is being hit in a simulated test: {pair['request']}"
         finally:
             f.write(json.dumps(loaded_journal, indent=4, separators=(",", ": ")))
 
@@ -299,8 +294,7 @@ class JournalAPI:
         def get_running_journal():
             return json.loads(
                 requests.get(
-                    HOVERFLY_API_JOURNAL.format(self.admin_port)
-                    + "?limit={}&offset={}".format(journals_per_request, offset)
+                    HOVERFLY_API_JOURNAL.format(self.admin_port) + f"?limit={journals_per_request}&offset={offset}"
                 ).text
             )
 

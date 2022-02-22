@@ -2,6 +2,8 @@ import json
 import os
 import time
 
+from .logger import logger
+
 
 class StaticSimulation:
     # TODO: consider creating a common Simulation interface in the future, if these classes get big
@@ -12,7 +14,7 @@ class StaticSimulation:
         """
         :list file: list of files that are used in the simulation
         :list block_domains: list of domains (or domain glob patterns) for which simulations will be generated to
-        block requests to.
+            block requests to.
         """
         self.files = files if files else []
         self.block_domains = block_domains
@@ -27,11 +29,10 @@ class StaticSimulation:
         # pre-loaded simulations are modularised into multiple simulations, so need to be glommed into one for hoverfly
         # We just need a thread-specific identifier for each combined simulation - the admin port will do nicely
         if self.file_paths:
-            return combine_simulations(
+            return _combine_simulations(
                 [os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port
             )
-        else:
-            return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
+        return _combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
 
 
 class GeneratedSimulation:
@@ -43,9 +44,10 @@ class GeneratedSimulation:
         :str file: the file simulations are recorded to or read from
         :int max_age: if not None, tells the tests how long a generated simulation is valid for (in seconds)
         :dict capture_config: overrides the existing Hoverfly simulation capture settings
-        :tuple static_files: static file simulations that get used in combination with recorded simulations. These aren't used when a simulation is being recorded.
+        :tuple static_files: static file simulations that get used in combination with recorded simulations.
+            These aren't used when a simulation is being recorded.
         """
-        self.file = os.path.join(self.file_type, file or "temp_{}.json".format(time.time()))
+        self.file = os.path.join(self.file_type, file or f"temp_{time.time()}.json")
         self.max_age = max_age
         self.capture_config = capture_config
         self.static_files = list(static_files) + self.default_static_files
@@ -53,28 +55,28 @@ class GeneratedSimulation:
 
     def full_file_path(self, data_dir, admin_port):
         for sim in self.static_files:
-            pass
-            # logger.info("Static simulations used in test: {}".format(sim))
+            logger.info("Static simulations used in test: %s", sim)
         if self.static_files:
-            # The order is important here: `extra` typically contains fallback matchers. So add it first so that Hoverfly prioritises matchers in the recorded simulation.
-            return combine_simulations(
+            # The order is important here: `extra` typically contains fallback matchers.
+            # So add it first so that Hoverfly prioritises matchers in the recorded simulation.
+            return _combine_simulations(
                 [os.path.join(data_dir, p) for p in (*self.static_files, self.file)], (), admin_port
             )
         return os.path.join(data_dir, self.file)
 
 
-def combine_simulations(simulations, domains_to_block, worker):
+def _combine_simulations(simulations, domains_to_block, worker):
     with open(simulations[0]) as f:
-        combined_sim = json.loads(f.read())
+        combined_sim = json.load(f)
 
     for sim in simulations[1:]:
         with open(sim) as f:
-            pairs = json.loads(f.read())["data"]["pairs"]
+            pairs = json.load(f)["data"]["pairs"]
             combined_sim["data"]["pairs"] += pairs
     for domain in domains_to_block:
         pairs = template_block_domain_json(domain)["data"]["pairs"]
         combined_sim["data"]["pairs"] += pairs
-    file_name = "combined_temp_{}.json".format(worker)
+    file_name = f"combined_temp_{worker}.json"
     with open(file_name, "w") as f:
         f.write(json.dumps(combined_sim, indent=4, separators=(",", ": ")))
     return file_name

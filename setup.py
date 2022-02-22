@@ -14,11 +14,11 @@ def read(fname):
 
 setup(
     name="pytest-hoverfly-wrapper",
-    version="0.5.0",
+    version="0.5.1",
     author="Veli Akiner",
-    author_email="veli@kopernio.com",
+    author_email="veli.akiner@gmail.com",
     maintainer="Veli Akiner",
-    maintainer_email="veli@kopernio.com",
+    maintainer_email="veli.akiner@gmail.com",
     license="MIT",
     url="https://github.com/kopernio/pytest-hoverfly-wrapper",
     description="Integrates the Hoverfly HTTP proxy into Pytest",
@@ -29,7 +29,7 @@ setup(
     packages=["pytest_hoverfly_wrapper"],
     include_package_data=True,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Framework :: Pytest",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Testing",

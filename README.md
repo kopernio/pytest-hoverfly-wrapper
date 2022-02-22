@@ -135,7 +135,8 @@ during the test, including parameters and headers.
     * Fixes typo in installation instructions
 * 0.5.0
     * Records simulations for static simulations if they don't exist yet
-
+* 0.5.1
+    * Clean up of code styling, docs and tests.
 ## Meta
 
 For all queries contact Veli Akiner: https://www.linkedin.com/in/veli-akiner-70a19b69/
