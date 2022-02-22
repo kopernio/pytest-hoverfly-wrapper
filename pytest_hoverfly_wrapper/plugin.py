@@ -194,10 +194,6 @@ def setup_hoverfly_mode(request, port, admin_port, data_dir):
     sim_marker = request.node.get_closest_marker("simulated")
     sim_config = StaticSimulation() if not sim_marker else sim_marker.args[0]
     file = sim_config.full_file_path(data_dir, admin_port)
-    print(file)
-    print(file)
-    print(file)
-    print(file)
     if no_valid_simulation_exists(request, file, sim_config.max_age):
         request.node.mode = "record"
         yield from record(file, request.node, port, admin_port, sim_config.capture_config)
