@@ -12,7 +12,7 @@ class StaticSimulation:
         """
         :list file: list of files that are used in the simulation
         :list block_domains: list of domains (or domain glob patterns) for which simulations will be generated to
-        block requests to.
+            block requests to.
         """
         self.files = files if files else []
         self.block_domains = block_domains
@@ -30,8 +30,7 @@ class StaticSimulation:
             return combine_simulations(
                 [os.path.join(data_dir, p) for p in self.file_paths], domains_to_block=(), worker=admin_port
             )
-        else:
-            return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
+        return combine_simulations(simulations=[BLOCK_DOMAIN_TEMPLATE], domains_to_block=(), worker=admin_port)
 
 
 class GeneratedSimulation:
@@ -67,11 +66,11 @@ class GeneratedSimulation:
 
 def combine_simulations(simulations, domains_to_block, worker):
     with open(simulations[0]) as f:
-        combined_sim = json.loads(f.read())
+        combined_sim = json.load(f)
 
     for sim in simulations[1:]:
         with open(sim) as f:
-            pairs = json.loads(f.read())["data"]["pairs"]
+            pairs = json.load(f)["data"]["pairs"]
             combined_sim["data"]["pairs"] += pairs
     for domain in domains_to_block:
         pairs = template_block_domain_json(domain)["data"]["pairs"]
