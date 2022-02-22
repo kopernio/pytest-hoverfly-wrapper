@@ -10,12 +10,10 @@ from pytest_hoverfly_wrapper.simulations import template_block_domain_json
 
 
 def test_raise_hoverflycrashedexc(testdir, pyfile_source):
-    """Make sure that pytest accepts our fixture."""
+    """The plugin should raise HoverflyCrashedException when ConnectionError is raised
+    while accessing hoverfly."""
 
-    # create a temporary pytest test module
     testdir.makepyfile(pyfile_source)
-
-    # run pytest with the following cmd args
     result = testdir.runpytest()
 
     assert result.ret == 1
@@ -30,12 +28,8 @@ def test_raise_hoverflycrashedexc(testdir, pyfile_source):
 def test_custom_test_data_dir(testdir, pyfile_source):
     """Test creating a custom directory."""
 
-    # create a temporary pytest test module
     testdir.makepyfile(pyfile_source)
-
-    # run pytest with the following cmd args
     result = testdir.runpytest()
-
     assert result.ret == 0
 
 
