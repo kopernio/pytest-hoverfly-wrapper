@@ -58,7 +58,7 @@ class GeneratedSimulation:
 
     def full_file_path(self, data_dir, admin_port):
         for sim in self.static_files:
-            logger.info("Static simulations used in test: {}".format(sim))
+            logger.info("Static simulations used in test: %s", sim)
         if self.static_files:
             # The order is important here: `extra` typically contains fallback matchers.
             # So add it first so that Hoverfly prioritises matchers in the recorded simulation.

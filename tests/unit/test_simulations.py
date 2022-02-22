@@ -2,8 +2,8 @@ from pytest_hoverfly_wrapper.simulations import GeneratedSimulation, StaticSimul
 
 
 def test_generated_simulation():
-    sim = GeneratedSimulation()
+    GeneratedSimulation()
 
 
 def test_static_simulation():
-    sim = StaticSimulation()
+    StaticSimulation()

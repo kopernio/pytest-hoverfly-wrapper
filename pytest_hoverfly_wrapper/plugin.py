@@ -52,8 +52,8 @@ def test_data_dir():
 
 @pytest.fixture
 def _test_data_dir(test_data_dir):
-    for d in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
-        Path(d).mkdir(parents=True, exist_ok=True)
+    for dir_ in (test_data_dir, os.path.join(test_data_dir, "static"), os.path.join(test_data_dir, "generated")):
+        Path(dir_).mkdir(parents=True, exist_ok=True)
     return test_data_dir
 
 
