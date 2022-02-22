@@ -159,27 +159,27 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     if not hasattr(request.config, "slaveinput"):
         # Cleaning up any running hoverctl processes is nice, but too risky in distributed mode
         subprocess.Popen(["hoverctl", "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
-    f = open(os.path.join(test_log_directory, "hoverfly.log"), "w")
 
     logger.info("Starting hoverfly")
     add_opts = request.config.getoption("hoverfly_opts")
     hoverfly_cmd = ["hoverfly", "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
     exc = None
-    for _ in range(3):
-        hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
-        try:
-            polling.poll(
-                target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port)).status_code == 200,
-                step=0.2,
-                timeout=5,
-                ignore_exceptions=requests.exceptions.ConnectionError,
-            )
-            break
-        except polling.TimeoutException as e:
-            exc = e
-            subprocess.Popen(["ps", "-ef"], stdout=f, stderr=f).wait()
-    else:
-        raise exc
+    with open(os.path.join(test_log_directory, "hoverfly.log"), "w") as f:
+        for _ in range(3):
+            hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
+            try:
+                polling.poll(
+                    target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port)).status_code == 200,
+                    step=0.2,
+                    timeout=5,
+                    ignore_exceptions=requests.exceptions.ConnectionError,
+                )
+                break
+            except polling.TimeoutException as e:
+                exc = e
+                subprocess.Popen(["ps", "-ef"], stdout=f, stderr=f).wait()
+        else:
+            raise exc
 
     requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"})
 

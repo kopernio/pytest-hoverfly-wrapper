@@ -170,7 +170,8 @@ def test_generate_logs(mocker, tmpdir):
     mock_request.node.sensitive = ["sensitive.host"]
     mock_request.node.mode = "simulate"
     mock_journal_api = mocker.MagicMock()
-    mock_journal_api.get.return_value = json.load(open("tests/input.json"))
+    with open("tests/input.json") as f:
+        mock_journal_api.get.return_value = json.load(f)
     log_file = os.path.join(tmpdir.strpath, "network.json")
     # golden path
     generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir.strpath)
@@ -183,7 +184,8 @@ def test_generate_logs(mocker, tmpdir):
     # useful message dumped if hoverfly crashes during log retrieval
     mock_journal_api.get.side_effect = requests.exceptions.ConnectionError
     generate_logs(request=mock_request, journal_api=mock_journal_api, test_log_directory=tmpdir.strpath)
-    assert json.load(open(log_file)) == {"msg": "Hoverfly crashed while retrieving logs"}
+    with open(log_file) as f:
+        assert json.load(f) == {"msg": "Hoverfly crashed while retrieving logs"}
 
 
 def test_no_simulation_marker(setup_hoverfly):
