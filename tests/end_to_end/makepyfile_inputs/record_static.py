@@ -1,6 +1,7 @@
-from pytest_hoverfly_wrapper.simulations import StaticSimulation
 import pytest
 import requests
+
+from pytest_hoverfly_wrapper.simulations import StaticSimulation
 
 
 @pytest.mark.simulated(StaticSimulation(files=["foobar.json"]))

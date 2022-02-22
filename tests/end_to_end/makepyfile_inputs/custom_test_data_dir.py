@@ -1,6 +1,7 @@
-from pytest_hoverfly_wrapper.simulations import GeneratedSimulation
 import pytest
 import requests
+
+from pytest_hoverfly_wrapper.simulations import GeneratedSimulation
 
 
 @pytest.fixture
