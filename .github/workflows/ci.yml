@@ -27,8 +27,8 @@ jobs:
         pip install -r requirements-test.txt
     - name: Lint
       run: |
-        black -l120 --check
-        isort -l120 --check
+        black -l120 --check ./
+        isort -l120 --check ./
         pylint **/*.py
     - name: Run tests
       run: |
