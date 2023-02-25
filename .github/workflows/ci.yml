@@ -33,5 +33,4 @@ jobs:
         pylint **/*.py
     - name: Run tests
       run: |
-        export PATH=$PATH:/home/runner/bin/
         pytest tests/ -v -p no:hoverfly-wrapper
