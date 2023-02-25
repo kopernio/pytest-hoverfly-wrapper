@@ -1,7 +1,6 @@
 import contextlib
 import os
 import sys
-from subprocess import Popen
 
 import requests
 import zipfile
@@ -15,11 +14,6 @@ HOVERCTL_PATH = os.path.join(OUTPATH, HOVERCTL)
 HOVERFLY_PATH = os.path.join(OUTPATH, HOVERFLY)
 
 
-# TODO unit tests
-# TODO work into plugin
-# TODO run pylint/black
-# TODO make outpath configurable?
-
 def get_platform_architecture():
     if sys.platform.startswith("linux"):
         platform = "linux"
@@ -30,9 +24,6 @@ def get_platform_architecture():
     elif sys.platform == "darwin":
         platform = "OSX"
         architecture = "amd64"
-    # elif sys.platform.startswith('win'):
-    #     platform = 'windows'
-    #     architecture = '386'
     else:
         raise RuntimeError(
             "Could not determine chromedriver download URL for this platform."
@@ -93,6 +84,3 @@ def manage_executables():
         return
     with download() as zip_file_name:
         unzip(zip_file_name)
-
-if __name__ == "__main__":
-    manage_executables()
