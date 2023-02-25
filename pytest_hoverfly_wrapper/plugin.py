@@ -13,6 +13,7 @@ import pytest
 import requests
 from dateutil.parser import parse
 
+from .download import manage_executables, HOVERFLY_PATH, HOVERCTL_PATH
 from .logger import logger
 from .simulations import StaticSimulation
 
@@ -97,6 +98,7 @@ def pytest_configure(config):
         "simulated(simulation_obj): Makes use of recorded responses which are sent in response to web requests "
         "made in tests, rather than receiving responses from their intended targets",
     )
+    manage_executables()
 
 
 def simulate(file, hf_port, admin_port):
@@ -154,11 +156,11 @@ def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitiv
     port, admin_port = hf_ports
     if not hasattr(request.config, "slaveinput"):
         # Cleaning up any running hoverctl processes is nice, but too risky in distributed mode
-        subprocess.Popen(["hoverctl", "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
+        subprocess.Popen([HOVERCTL_PATH, "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
 
     logger.info("Starting hoverfly")
     add_opts = request.config.getoption("hoverfly_opts")
-    hoverfly_cmd = ["hoverfly", "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
+    hoverfly_cmd = [HOVERFLY_PATH, "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
     exc = None
     with open(os.path.join(test_log_directory, "hoverfly.log"), "w") as f:
         for _ in range(3):
