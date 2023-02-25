@@ -52,7 +52,9 @@ jobs:
       run: |
         black -l120 --check ./
         isort -l120 --check ./
-        python -m pylint **/*.py
+        if ! [[ $RUNNER_OS == "Windows" ]];then
+          pylint **/*.py
+        fi
     - name: Run tests
       run: |
-        pytest tests -v -p no:hoverfly-wrapper
+        pytest tests/ -v -p no:hoverfly-wrapper
