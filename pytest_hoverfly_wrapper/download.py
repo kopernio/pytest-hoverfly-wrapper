@@ -10,23 +10,25 @@ from .logger import logger
 
 OUTPATH = "./hoverfly_executables"  # configure via plugin options
 VERSION = "v2.0.0"
-HOVERCTL = "hoverctl"
-HOVERFLY = "hoverfly"
+HOVERCTL = f"hoverctl{'.exe' if sys.platform == 'win' else ''}"
+HOVERFLY = f"hoverfly{'.exe' if sys.platform == 'win' else ''}"
 
 HOVERCTL_PATH = os.path.join(OUTPATH, HOVERCTL)
 HOVERFLY_PATH = os.path.join(OUTPATH, HOVERFLY)
 
 
 def get_platform_architecture():
+    if sys.maxsize > 2**32:
+        architecture = "amd64"
+    else:
+        architecture = "386"
     if sys.platform.startswith("linux"):
         platform = "linux"
-        if sys.maxsize > 2**32:
-            architecture = "amd64"
-        else:
-            architecture = "386"
     elif sys.platform == "darwin":
         platform = "OSX"
         architecture = "amd64"
+    elif sys.platform == "win":
+        platform = "windows"
     else:
         raise RuntimeError("Unsupported operating system.")
     return platform, architecture
