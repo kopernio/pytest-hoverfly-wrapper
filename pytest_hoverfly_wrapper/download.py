@@ -27,10 +27,10 @@ def get_platform_architecture():
     elif sys.platform == "darwin":
         platform = "OSX"
         architecture = "amd64"
-    elif sys.platform == "win":
+    elif sys.platform.startswith("win"):
         platform = "windows"
     else:
-        raise RuntimeError("Unsupported operating system.")
+        raise RuntimeError(f"Unsupported operating system: {sys.platform}")
     return platform, architecture
 
 
