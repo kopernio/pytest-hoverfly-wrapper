@@ -13,7 +13,7 @@ import pytest
 import requests
 from dateutil.parser import parse
 
-from .download import manage_executables, HOVERFLY_PATH, HOVERCTL_PATH
+from .download import HOVERCTL_PATH, HOVERFLY_PATH, manage_executables
 from .logger import logger
 from .simulations import StaticSimulation
 
@@ -80,7 +80,7 @@ def test_log_directory():
     return directory
 
 
-def pytest_collection_modifyitems(session, config, items):
+def pytest_collection_modifyitems(config, items):
     if config.getoption("refreshexpired"):
         # Collect all tests that have expiring simulations
         # (the up-to-date ones get skipped, which is simpler than parsing
@@ -104,9 +104,9 @@ def pytest_configure(config):
 def simulate(file, hf_port, admin_port):
     logger.info("Simulation exists and is up-to-date. Importing.")
     if file:
-        with open(file) as f:
-            data = f.read().encode("utf-8")
-        requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data)
+        with open(file) as file_:
+            data = file_.read().encode("utf-8")
+        requests.put(HOVERFLY_API_SIMULATION.format(admin_port), data, timeout=5)
     yield "simulate", hf_port, admin_port
 
 
@@ -114,16 +114,15 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
     logger.info("Recording a simulation.")
     if not capture_arguments:
         capture_arguments = {"headersWhitelist": ["Cookie"]}
-        # TODO: optionally enable this.
-        # use these parameters (+ loosening some of the matches) for recording static simulations.
-        # capture_arguments = {"headersWhitelist": ["Cookie"], "stateful": True}
-    requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "capture", "arguments": capture_arguments})
+    requests.put(
+        HOVERFLY_API_MODE.format(admin_port), json={"mode": "capture", "arguments": capture_arguments}, timeout=5
+    )
     yield "record", proxy_port, admin_port
     if hasattr(node, "dont_save_sim"):
         logger.info("Test did not pass, not saving simulation")
         return
 
-    sim = requests.get(HOVERFLY_API_SIMULATION.format(admin_port)).text
+    sim = requests.get(HOVERFLY_API_SIMULATION.format(admin_port), timeout=5).text
 
     data = json.loads(sim)
     new_pairs = []
@@ -138,8 +137,8 @@ def record(file, node, proxy_port, admin_port, capture_arguments):
         if not any(host in pair["request"]["destination"][0]["value"] for host in hosts_to_ignore):
             new_pairs.append(pair)
     data["data"]["pairs"] = new_pairs
-    with open(file, "w") as f:
-        f.write(json.dumps(data, indent=4, separators=(",", ": ")))
+    with open(file, "w") as file_:
+        file_.write(json.dumps(data, indent=4, separators=(",", ": ")))
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -150,36 +149,40 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture
-def setup_hoverfly(request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, _test_data_dir):
+def setup_hoverfly(
+    request, hf_ports, test_log_directory, ignore_hosts, sensitive_hosts, _test_data_dir
+):  # pylint: disable=W0613
     # Start Hoverfly
     logger.info("Setting up hoverfly")
     port, admin_port = hf_ports
     if not hasattr(request.config, "slaveinput"):
         # Cleaning up any running hoverctl processes is nice, but too risky in distributed mode
-        subprocess.Popen([HOVERCTL_PATH, "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE).wait()
+        with subprocess.Popen([HOVERCTL_PATH, "stop"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as proc:
+            proc.wait()
 
     logger.info("Starting hoverfly")
     add_opts = request.config.getoption("hoverfly_opts")
     hoverfly_cmd = [HOVERFLY_PATH, "-pp", str(port), "-ap", str(admin_port), *add_opts.split()]
     exc = None
-    with open(os.path.join(test_log_directory, "hoverfly.log"), "w") as f:
+    with open(os.path.join(test_log_directory, "hoverfly.log"), "w") as file:
         for _ in range(3):
-            hf_proc = subprocess.Popen(hoverfly_cmd, stdout=f, stderr=f)
+            hf_proc = subprocess.Popen(hoverfly_cmd, stdout=file, stderr=file)  # pylint: disable=R1732
             try:
                 polling.poll(
-                    target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port)).status_code == 200,
+                    target=lambda: requests.get(HOVERFLY_API_MODE.format(admin_port), timeout=5).status_code == 200,
                     step=0.2,
                     timeout=5,
                     ignore_exceptions=requests.exceptions.ConnectionError,
                 )
                 break
-            except polling.TimeoutException as e:
-                exc = e
-                subprocess.Popen(["ps", "-ef"], stdout=f, stderr=f).wait()
+            except polling.TimeoutException as exc_:
+                exc = exc_
+                with subprocess.Popen(["ps", "-ef"], stdout=file, stderr=file) as proc:
+                    proc.wait()
         else:
             raise exc
 
-    requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"})
+    requests.put(HOVERFLY_API_MODE.format(admin_port), json={"mode": "spy"}, timeout=5)
 
     try:
         yield from setup_hoverfly_mode(request, port, admin_port, _test_data_dir)
@@ -207,18 +210,17 @@ def no_valid_simulation_exists(request, sim_file, max_age_seconds):
     if request.config.getoption("forcelive"):
         return True
     try:
-        with open(sim_file) as f:
-            sim_metadata = json.loads(f.read())["meta"]
+        with open(sim_file) as file:
+            sim_metadata = json.loads(file.read())["meta"]
             date_sim_created = parse(sim_metadata.get("timeExported"))
             age = (datetime.now(timezone.utc) - date_sim_created).total_seconds()
             if request.config.getoption("refreshexpired"):
                 if max_age_seconds and age > max_age_seconds:
                     logger.debug("Simulation is expired.")
                     return True
-                else:
-                    skip_msg = "Simulation up-to-date. No need to run test."
-                    logger.warning(skip_msg)
-                    pytest.skip(skip_msg)
+                skip_msg = "Simulation up-to-date. No need to run test."
+                logger.warning(skip_msg)
+                pytest.skip(skip_msg)
     except FileNotFoundError:
         logger.debug("No simulation file found.")
         return True
@@ -243,11 +245,11 @@ def pytest_runtest_call(item):
     if "setup_hoverfly" not in item.fixturenames:
         return
     try:
-        requests.get(f"http://localhost:{item.config.admin_port}")
+        requests.get(f"http://localhost:{item.config.admin_port}", timeout=5)
     except requests.exceptions.ConnectionError:
         logger.warning("Hoverfly crashed.")
         try:
-            requests.get(f"http://localhost:{item.config.admin_port}")
+            requests.get(f"http://localhost:{item.config.admin_port}", timeout=5)
         except requests.exceptions.ConnectionError:
 
             def raise_hoverfly_exception():
@@ -258,13 +260,13 @@ def pytest_runtest_call(item):
 
 def generate_logs(request, journal_api, test_log_directory):
     network_log_file = os.path.join(test_log_directory, "network.json")
-    with open(network_log_file, "w") as f:
+    with open(network_log_file, "w") as file:
         logger.warning("Getting journal")
         try:
             loaded_journal = journal_api.get()
         except requests.exceptions.ConnectionError:
             logger.warning("Hoverfly fell over. No network log available")
-            f.write(json.dumps({"msg": "Hoverfly crashed while retrieving logs"}))
+            file.write(json.dumps({"msg": "Hoverfly crashed while retrieving logs"}))
             return
         logger.warning("Got journal")
         try:
@@ -279,15 +281,17 @@ def generate_logs(request, journal_api, test_log_directory):
                         "Hoverfly-Cache-Served"
                     ), f"Warning: sensitive URL is being hit in a simulated test: {pair['request']}"
         finally:
-            f.write(json.dumps(loaded_journal, indent=4, separators=(",", ": ")))
+            file.write(json.dumps(loaded_journal, indent=4, separators=(",", ": ")))
 
 
 class JournalAPI:
+    """Python interface for Hoverctl's REST API for accessing its journal."""
+
     def __init__(self, admin_port):
         self.admin_port = admin_port
 
     def delete(self):
-        requests.delete(HOVERFLY_API_JOURNAL.format(self.admin_port))
+        requests.delete(HOVERFLY_API_JOURNAL.format(self.admin_port), timeout=5)
 
     def get(self):
         offset = 0
@@ -296,7 +300,8 @@ class JournalAPI:
         def get_running_journal():
             return json.loads(
                 requests.get(
-                    HOVERFLY_API_JOURNAL.format(self.admin_port) + f"?limit={journals_per_request}&offset={offset}"
+                    HOVERFLY_API_JOURNAL.format(self.admin_port) + f"?limit={journals_per_request}&offset={offset}",
+                    timeout=5,
                 ).text
             )
 
@@ -313,10 +318,10 @@ def journal_api(setup_hoverfly):
     return JournalAPI(setup_hoverfly[2])
 
 
-def pytest_unconfigure(config):
+def pytest_unconfigure():
     for file in glob.glob("combined_temp*.json"):
         os.remove(file)
 
 
 class HoverflyCrashedException(Exception):
-    pass
+    """Custom exception to signal to framework that Hoverfly has crashed."""

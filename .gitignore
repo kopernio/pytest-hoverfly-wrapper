@@ -76,3 +76,4 @@ target/
 hoverfly_logs
 test_data/generated
 test_data/static/foobar.json
+hoverfly_executables/

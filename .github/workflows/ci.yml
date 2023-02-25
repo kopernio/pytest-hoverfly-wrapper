@@ -30,10 +30,11 @@ jobs:
       run: |
         python setup.py install
         pip install -r requirements-test.txt
-    - name: Install Hoverfly
+    - name: Lint
       run: |
-        if ! [ -d ~/bin/hoverfly ];then wget https://github.com/SpectoLabs/hoverfly/releases/download/v0.17.2/hoverfly_bundle_linux_amd64.zip -O hoverfly.zip;fi
-        if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
+        black -l120 --check
+        isort -l120 --check
+        pylint **/*.py
     - name: Run tests
       run: |
         export PATH=$PATH:/home/runner/bin/

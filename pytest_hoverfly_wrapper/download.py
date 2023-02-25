@@ -1,12 +1,14 @@
 import contextlib
 import os
 import sys
+import zipfile
+from subprocess import CalledProcessError, run
 
 import requests
-import zipfile
+
 from .logger import logger
 
-OUTPATH = "./hoverfly_executables" # configure via plugin options
+OUTPATH = "./hoverfly_executables"  # configure via plugin options
 VERSION = "v2.0.0"
 HOVERCTL = "hoverctl"
 HOVERFLY = "hoverfly"
@@ -26,28 +28,24 @@ def get_platform_architecture():
         platform = "OSX"
         architecture = "amd64"
     else:
-        raise RuntimeError(
-            "Unsupported operating system."
-        )
+        raise RuntimeError("Unsupported operating system.")
     return platform, architecture
-from subprocess import run
 
 
 def binaries_valid():
     """Binaries exist and are runnable"""
     try:
-        output_1 = run([HOVERFLY_PATH, "-version"], capture_output=True)
-        output_2 = run([HOVERCTL_PATH, "version"], capture_output=True)
+        output_1 = run([HOVERFLY_PATH, "-version"], capture_output=True, check=True)
+        run([HOVERCTL_PATH, "version"], capture_output=True, check=True)
         version = output_1.stdout.decode("utf-8").split("\n")[0]
-        if output_1.returncode != 0 or output_2.returncode != 0:
-            logger.info("Error running files.")
-            return False
-
         if version != VERSION:
             logger.info("Version mismatch.")
             return False
     except FileNotFoundError:
         logger.info("Files missing.")
+        return False
+    except CalledProcessError:
+        logger.info("Error running files.")
         return False
     except PermissionError:
         logger.info("Files not executable.")
@@ -60,11 +58,14 @@ def binaries_valid():
 def download():
     platform, architecture = get_platform_architecture()
     # Define the remote file to retrieve
-    remote_url = f"https://github.com/SpectoLabs/hoverfly/releases/download/{VERSION}/hoverfly_bundle_{platform}_{architecture}.zip"
+    remote_url = (
+        f"https://github.com/SpectoLabs/hoverfly/releases/download/"
+        f"{VERSION}/hoverfly_bundle_{platform}_{architecture}.zip"
+    )
     # Define the local filename to save data
     local_file = "hf.zip"
     # Make http request for remote file data
-    data = requests.get(remote_url)
+    data = requests.get(remote_url, timeout=60)
     # Save file data to local copy
     with open(local_file, "wb") as file:
         file.write(data.content)
