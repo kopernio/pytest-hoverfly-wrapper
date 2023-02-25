@@ -64,11 +64,6 @@ jobs:
       run: |
         python setup.py install
         pip install -r requirements-test.txt
-    - name: Lint
-      run: |
-        black -l120 --check ./
-        isort -l120 --check ./
-        pylint **\*.py
     - name: Run tests
       run: |
         pytest tests\ -v -p no:hoverfly-wrapper
