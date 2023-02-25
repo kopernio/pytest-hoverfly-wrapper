@@ -52,7 +52,7 @@ jobs:
       run: |
         black -l120 --check ./
         isort -l120 --check ./
-        pylint **/*.py
+        python -m pylint **/*.py
     - name: Run tests
       run: |
-        pytest tests/ -v -p no:hoverfly-wrapper
+        pytest tests -v -p no:hoverfly-wrapper
