@@ -27,7 +27,7 @@ def get_platform_architecture():
         architecture = "amd64"
     else:
         raise RuntimeError(
-            "Could not determine chromedriver download URL for this platform."
+            "Unsupported operating system."
         )
     return platform, architecture
 from subprocess import run
