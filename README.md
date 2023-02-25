@@ -35,6 +35,12 @@ pip install -r requirements-test.txt
 pytest tests/
 ```
 
+`end_to_end` tests the plugin's integration with a Pytest framework: each test consists of a pytest script that gets 
+fed into pytester and run inside a virtual Pytest environment. The result of *that* is asserted against. The reason we 
+need this is to test failure modes, which would cause the test to fail.
+
+`unit` contains tests for individual functions.
+
 ## Usage example
 
 ### Cache responses to external services
