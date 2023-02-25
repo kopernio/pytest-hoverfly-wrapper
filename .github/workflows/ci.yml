@@ -45,7 +45,7 @@ jobs:
         pylint **/*.py
     - name: Run tests
       run: |
-        pytest tests/ -v -p no:hoverfly-wrapper
+        pytest tests/ -v -p no:hoverfly-wrapper -x
   test_windows:
     name: Tests (windows)
     runs-on: windows-latest
@@ -66,4 +66,4 @@ jobs:
         pip install -r requirements-test.txt
     - name: Run tests
       run: |
-        pytest tests\ -v -p no:hoverfly-wrapper
+        pytest tests\ -v -p no:hoverfly-wrapper -x

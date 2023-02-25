@@ -8,10 +8,10 @@ import requests
 
 from .logger import logger
 
-OUTPATH = "./hoverfly_executables"  # configure via plugin options
+OUTPATH = "hoverfly_executables"  # configure via plugin options
 VERSION = "v2.0.0"
-HOVERCTL = f"hoverctl{'.exe' if sys.platform == 'win' else ''}"
-HOVERFLY = f"hoverfly{'.exe' if sys.platform == 'win' else ''}"
+HOVERCTL = f"hoverctl{'.exe' if sys.platform.startswith('win') else ''}"
+HOVERFLY = f"hoverfly{'.exe' if sys.platform.startswith('win') else ''}"
 
 HOVERCTL_PATH = os.path.join(OUTPATH, HOVERCTL)
 HOVERFLY_PATH = os.path.join(OUTPATH, HOVERFLY)
