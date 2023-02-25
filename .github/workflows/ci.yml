@@ -5,19 +5,27 @@ on: pull_request
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
         python-version:
-        - 3.6
         - 3.7
         - 3.8
         - 3.9
-        experimental: [false]
-        include:
-          - python-version: 3.10.0-alpha - 3.10.0
-            experimental: true
+        - 3.10.10
+        - 3.11
+        exclude: # mac runners are expensive
+          - python-version: 3.8
+            os: macos-latest
+          - python-version: 3.9
+            os: macos-latest
+          - python-version: 3.10.10
+            os: macos-latest
+          - python-version: 3.11
+            os: macos-latest
 
     steps:
     - name: Checkout
@@ -30,11 +38,32 @@ jobs:
       run: |
         python setup.py install
         pip install -r requirements-test.txt
-    - name: Install Hoverfly
+    - name: Lint
       run: |
-        if ! [ -d ~/bin/hoverfly ];then wget https://github.com/SpectoLabs/hoverfly/releases/download/v0.17.2/hoverfly_bundle_linux_amd64.zip -O hoverfly.zip;fi
-        if ! [ -d ~/bin/hoverfly ];then unzip -o hoverfly.zip -d ~/bin;fi
+        black -l120 --check ./
+        isort -l120 --check ./
+        pylint **/*.py
     - name: Run tests
       run: |
-        export PATH=$PATH:/home/runner/bin/
-        pytest tests/ -v
+        pytest tests/ -v -p no:hoverfly-wrapper -x
+  test_windows:
+    name: Tests (windows)
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        python-version:
+        - 3.7
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python setup.py install
+        pip install -r requirements-test.txt
+    - name: Run tests
+      run: |
+        pytest tests\ -v -p no:hoverfly-wrapper -x

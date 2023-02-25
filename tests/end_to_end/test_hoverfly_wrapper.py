@@ -79,9 +79,11 @@ def test_existing_static(testdir, pyfile_source):
     assert result.ret == 0
 
 
-def test_no_simulation_marker(setup_hoverfly):
-    # We should be able to setup Hoverfly without specifying a simulation
-    pass
+def test_no_simulation_marker(testdir, pyfile_source):
+    """We should be able to setup Hoverfly without specifying a simulation"""
+    testdir.makepyfile(pyfile_source)
+    result = testdir.runpytest()
+    assert result.ret == 0
 
 
 def test_marker_registered(testdir, pyfile_source):

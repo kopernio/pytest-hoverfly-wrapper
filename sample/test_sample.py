@@ -21,5 +21,5 @@ def test_something(setup_hoverfly):
         "http": f"http://localhost:{proxy_port}",
         "https": f"http://localhost:{proxy_port}",
     }
-    r = requests.get("http://google.com", proxies=proxies)
-    assert r.status_code == 404
+    response = requests.get("http://google.com", proxies=proxies, timeout=5)
+    assert response.status_code == 404
