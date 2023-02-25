@@ -4,6 +4,7 @@ import sys
 
 import requests
 import zipfile
+from .logger import logger
 
 OUTPATH = "./hoverfly_executables" # configure via plugin options
 VERSION = "v2.0.0"
@@ -39,19 +40,19 @@ def binaries_valid():
         output_2 = run([HOVERCTL_PATH, "version"], capture_output=True)
         version = output_1.stdout.decode("utf-8").split("\n")[0]
         if output_1.returncode != 0 or output_2.returncode != 0:
-            print("Error running files.")
+            logger.info("Error running files.")
             return False
 
         if version != VERSION:
-            print("Version mismatch. Redownloading")
+            logger.info("Version mismatch.")
             return False
     except FileNotFoundError:
-        print("Files missing. Redownloading")
+        logger.info("Files missing.")
         return False
     except PermissionError:
-        print("Files not executable. Redownloading")
+        logger.info("Files not executable.")
         return False
-    print("Files look good.")
+    logger.debug("Hoverfly executables are valid.")
     return True
 
 
