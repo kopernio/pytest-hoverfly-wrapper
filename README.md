@@ -137,6 +137,8 @@ during the test, including parameters and headers.
     * Records simulations for static simulations if they don't exist yet
 * 0.5.1
     * Clean up of code styling, docs and tests.
+* 1.0.0
+    * Automatic download of binaries; support for <3.7 dropped; support added for Windows
 ## Meta
 
 For all queries contact Veli Akiner: https://www.linkedin.com/in/veli-akiner-70a19b69/
