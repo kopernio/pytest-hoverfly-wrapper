@@ -77,10 +77,6 @@ jobs:
 
   build_release:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version:
-        - 3.7
     needs: [test, test_windows]
     if: github.ref == 'refs/heads/master'
     steps:
@@ -94,7 +90,7 @@ jobs:
         python-version: 3.7
     - name: Build
       run: |
-        ./build_release.sh
+        ./build_release_candidate.sh
     - name: Archive production artifacts
       uses: actions/upload-artifact@v3
       with:
