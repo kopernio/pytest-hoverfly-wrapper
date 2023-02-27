@@ -14,7 +14,7 @@ def read(fname):
 
 setup(
     name="pytest-hoverfly-wrapper",
-    version="1.0.0",
+    version="1.0.1",
     author="Veli Akiner",
     author_email="veli.akiner@gmail.com",
     maintainer="Veli Akiner",
@@ -43,6 +43,7 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: Microsoft :: Windows",
         "Operating System :: POSIX :: Linux",
+        "Operating System :: MacOS",
         "License :: OSI Approved :: MIT License",
     ],
     entry_points={
