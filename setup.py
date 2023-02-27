@@ -25,7 +25,7 @@ setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
-    install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling"],
+    install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling", "requests_cache"],
     packages=["pytest_hoverfly_wrapper"],
     include_package_data=True,
     classifiers=[

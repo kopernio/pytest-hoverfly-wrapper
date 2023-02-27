@@ -4,12 +4,14 @@ import sys
 import zipfile
 from subprocess import CalledProcessError, run
 
-import requests
+import requests_cache
 
 from .logger import logger
 
+session = requests_cache.CachedSession(".pytest_cache/hoverfly_cache")
+
+
 OUTPATH = "hoverfly_executables"  # configure via plugin options
-VERSION = "v2.0.0"
 HOVERCTL = f"hoverctl{'.exe' if sys.platform.startswith('win') else ''}"
 HOVERFLY = f"hoverfly{'.exe' if sys.platform.startswith('win') else ''}"
 
@@ -40,7 +42,7 @@ def binaries_valid():
         output_1 = run([HOVERFLY_PATH, "-version"], capture_output=True, check=True)
         run([HOVERCTL_PATH, "version"], capture_output=True, check=True)
         version = output_1.stdout.decode("utf-8").split("\n")[0]
-        if version != VERSION:
+        if version != get_latest_version():
             logger.info("Version mismatch.")
             return False
     except FileNotFoundError:
@@ -56,18 +58,26 @@ def binaries_valid():
     return True
 
 
+def get_latest_version():
+    resp = session.get("https://api.github.com/repos/SpectoLabs/hoverfly/releases/latest", timeout=5)
+    resp.raise_for_status()
+    return resp.json()["tag_name"]
+
+
 @contextlib.contextmanager
 def download():
     platform, architecture = get_platform_architecture()
     # Define the remote file to retrieve
+    latest_version = get_latest_version()
     remote_url = (
         f"https://github.com/SpectoLabs/hoverfly/releases/download/"
-        f"{VERSION}/hoverfly_bundle_{platform}_{architecture}.zip"
+        f"{latest_version}/hoverfly_bundle_{platform}_{architecture}.zip"
     )
     # Define the local filename to save data
     local_file = "hf.zip"
     # Make http request for remote file data
-    data = requests.get(remote_url, timeout=60)
+    data = session.get(remote_url, timeout=60)
+    data.raise_for_status()
     # Save file data to local copy
     with open(local_file, "wb") as file:
         file.write(data.content)
