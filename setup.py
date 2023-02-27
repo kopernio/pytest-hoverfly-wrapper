@@ -26,6 +26,7 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
     install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling", "requests-cache==0.9.8"],
+    setup_requires=["requests"],
     packages=["pytest_hoverfly_wrapper"],
     include_package_data=True,
     classifiers=[
