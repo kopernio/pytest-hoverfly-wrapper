@@ -14,7 +14,7 @@ def read(fname):
 
 setup(
     name="pytest-hoverfly-wrapper",
-    version="1.0.0",
+    version="1.0.1",
     author="Veli Akiner",
     author_email="veli.akiner@gmail.com",
     maintainer="Veli Akiner",
@@ -25,7 +25,8 @@ setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
-    install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling"],
+    install_requires=["pytest>=3.7.0", "requests", "python-dateutil", "polling", "requests-cache==0.9.8"],
+    setup_requires=["requests"],
     packages=["pytest_hoverfly_wrapper"],
     include_package_data=True,
     classifiers=[
@@ -41,7 +42,9 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
-        "Operating System :: Mac/Windows/Linux",
+        "Operating System :: Microsoft :: Windows",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: MacOS",
         "License :: OSI Approved :: MIT License",
     ],
     entry_points={
