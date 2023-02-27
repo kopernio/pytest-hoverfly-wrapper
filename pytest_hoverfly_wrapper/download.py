@@ -71,8 +71,10 @@ def download():
     # Save file data to local copy
     with open(local_file, "wb") as file:
         file.write(data.content)
-    yield local_file
-    os.remove(local_file)
+    try:
+        yield local_file
+    finally:
+        os.remove(local_file)
 
 
 def unzip(path_to_zip_file):
