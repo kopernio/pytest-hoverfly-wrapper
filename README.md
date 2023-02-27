@@ -141,6 +141,7 @@ during the test, including parameters and headers.
     * Automatic download of binaries; support for <3.7 dropped; support added for Windows
 * 1.0.1
     * Fix setup.py classifiers, and pull in latest Hoverfly version always
+
 ## Meta
 
 For all queries contact Veli Akiner: https://www.linkedin.com/in/veli-akiner-70a19b69/
