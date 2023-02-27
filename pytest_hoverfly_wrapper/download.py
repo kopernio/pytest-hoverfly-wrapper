@@ -1,5 +1,6 @@
 import contextlib
 import os
+import re
 import sys
 import zipfile
 from subprocess import CalledProcessError, run
@@ -59,9 +60,10 @@ def binaries_valid():
 
 
 def get_latest_version():
-    resp = session.get("https://api.github.com/repos/SpectoLabs/hoverfly/releases/latest", timeout=5)
+    resp = session.get("https://github.com/SpectoLabs/hoverfly/releases/latest", timeout=5, allow_redirects=False)
     resp.raise_for_status()
-    return resp.json()["tag_name"]
+    latest_ver_url = resp.headers["Location"]
+    return re.findall(r"[^/]+$", latest_ver_url)[0]
 
 
 @contextlib.contextmanager
