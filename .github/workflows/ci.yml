@@ -48,6 +48,7 @@ jobs:
         pytest tests/ -v -p no:hoverfly-wrapper -x
   test_windows:
     name: Tests (windows)
+    needs: test
     runs-on: windows-latest
     strategy:
       matrix:
@@ -67,3 +68,23 @@ jobs:
     - name: Run tests
       run: |
         pytest tests\ -v -p no:hoverfly-wrapper -x
+
+  build_release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+        - 3.7
+    needs: [test, test_windows]
+    if: github.ref == 'refs/heads/master'
+    steps:
+    - name: Build
+      run: |
+        pip install build
+        python -m build
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: |
+          dist/*
