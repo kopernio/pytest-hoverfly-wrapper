@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # Checks if there has been a new version change, and builds the plugin for release if there has.
 pip install yolk3k
 LATEST_DEPLOYED_VER=$(yolk -V pytest-hoverfly-wrapper | grep -oE '[0-9.]+')
